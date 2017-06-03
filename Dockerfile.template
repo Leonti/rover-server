@@ -10,6 +10,8 @@ FROM resin/%%RESIN_MACHINE_NAME%%-node:latest
 #    alsa-utils libasound2-dev && \
 #    apt-get clean && rm -rf /var/lib/apt/lists/*
 
+RUN npm install -g react-scripts
+
 # Defines our working directory in container
 WORKDIR /usr/src/app/server
 
