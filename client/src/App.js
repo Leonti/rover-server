@@ -9,6 +9,10 @@ class App extends Component {
   }
 
   componentDidMount() {
+    this.ws = new WebSocket('ws://localhost:3000/ws');
+
+    this.ws.onopen = () => this.ws.send('Ping')
+
     fetch('/api/battery')
       .then(res => res.json())
       .then(battery => this.setState({ battery }));

@@ -25,6 +25,7 @@
   "homepage": "https://github.com/resin-io-projects/simple-server-node#readme",
   "dependencies": {
     "express": "*",
+    "express-ws": "^3.0.0",
     "motor-l298n": "0.0.1"
   }
 }
