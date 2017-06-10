@@ -4,8 +4,7 @@ class Motor {
         this.motor = require('motor-l298n')
 
         // in1Pin, in2Pin, enable1Pin, in3Pin, in4Pin, enable2Pin
-    //    this.l298n = this.motor.setup(6, 13, 5, 19, 26, 21);
-
+        this.l298n = this.motor.setup(6, 13, 5, 19, 26, 21);
         console.log('Creating l298n', this.l298n);
     }
 
