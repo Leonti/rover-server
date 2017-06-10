@@ -9,40 +9,40 @@ class Motor {
     }
 
     forward = speed => {
-        l298n.setSpeed(motor.LEFT, speed);
-        l298n.setSpeed(motor.RIGHT, speed);
+        this.l298n.setSpeed(motor.LEFT, speed);
+        this.l298n.setSpeed(motor.RIGHT, speed);
 
-        l298n.forward(motor.LEFT);
-        l298n.forward(motor.RIGHT);
+        this.l298n.forward(motor.LEFT);
+        this.l298n.forward(motor.RIGHT);
     }
 
     back = speed => {
-        l298n.setSpeed(motor.LEFT, speed);
-        l298n.setSpeed(motor.RIGHT, speed);
+        this.l298n.setSpeed(motor.LEFT, speed);
+        this.l298n.setSpeed(motor.RIGHT, speed);
 
-        l298n.backward(motor.LEFT);
-        l298n.backward(motor.RIGHT);
+        this.l298n.backward(motor.LEFT);
+        this.l298n.backward(motor.RIGHT);
     }
 
     left = speed => {
-        l298n.setSpeed(motor.LEFT, speed);
-        l298n.setSpeed(motor.RIGHT, speed);
+        this.l298n.setSpeed(motor.LEFT, speed);
+        this.l298n.setSpeed(motor.RIGHT, speed);
 
-        l298n.forward(motor.LEFT);
-        l298n.backward(motor.RIGHT);
+        this.l298n.forward(motor.LEFT);
+        this.l298n.backward(motor.RIGHT);
     }
 
     right = speed => {
-        l298n.setSpeed(motor.LEFT, speed);
-        l298n.setSpeed(motor.RIGHT, speed);
+        this.l298n.setSpeed(motor.LEFT, speed);
+        this.l298n.setSpeed(motor.RIGHT, speed);
 
-        l298n.backward(motor.LEFT);
-        l298n.forward(motor.RIGHT);
+        this.l298n.backward(motor.LEFT);
+        this.l298n.forward(motor.RIGHT);
     }
 
     stop = () => {
-        l298n.stop(motor.LEFT)
-        l298n.stop(motor.RIGHT)
+        this.l298n.stop(motor.LEFT)
+        this.l298n.stop(motor.RIGHT)
     }
 
 }
