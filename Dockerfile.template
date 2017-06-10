@@ -24,6 +24,8 @@ COPY client ./
 RUN JOBS=MAX npm run build
 
 WORKDIR /usr/src/app/server
+# Remove this later
+RUN JOBS=MAX npm install --unsafe-perm && npm cache clean && rm -rf /tmp/*
 COPY server ./
 
 ENV INITSYSTEM on
