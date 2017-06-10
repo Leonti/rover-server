@@ -1,17 +1,27 @@
-import React, { Component } from 'react';
-import './App.css';
+import React, { Component } from 'react'
+import './App.css'
 
-import Battery from './components/Battery';
+import Battery from './components/Battery'
+import Navigation from './components/Navigation'
+import Control from './service/Control'
 
 class App extends Component {
   state = {
-      battery: null
+      battery: null,
+      speed: 40,
+      wsConnected: false,
+      wsError: false,
   }
 
-  componentDidMount() {
-    this.ws = new WebSocket('ws://localhost:3000/ws');
+  control = null
 
-    this.ws.onopen = () => this.ws.send('Ping')
+  componentDidMount() {
+    let server = new WebSocket(`ws://${window.location.host}/ws`)
+    server.onopen = () => {
+        this.setState({wsConnected: true})
+        this.control = new Control(server)
+    }
+    server.onerror = err => this.setState({wsError: true})
 
     fetch('/api/battery')
       .then(res => res.json())
@@ -23,11 +33,20 @@ class App extends Component {
     const batteryView = this.state.battery != null ?
         <Battery
             battery={this.state.battery}
-        /> : null;
+        /> : null
+    const navigationView = this.state.wsConnected ?
+        <Navigation
+            onForward={() => this.control.forward(this.state.speed)}
+            onBack={() => this.control.back(this.state.speed)}
+            onLeft={() => this.control.left(this.state.speed)}
+            onRight={() => this.control.right(this.state.speed)}
+            onStop={() => this.control.stop()}
+        /> : <div>Connecting to rover</div>
 
     return (
       <div className="App">
         <h1>Rover</h1>
+        {navigationView}
         {batteryView}
       </div>
     );

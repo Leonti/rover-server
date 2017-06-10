@@ -12,29 +12,20 @@ FROM resin/%%RESIN_MACHINE_NAME%%-node:latest
 
 RUN npm install -g react-scripts
 
-# Defines our working directory in container
 WORKDIR /usr/src/app/server
-
-# Copies the package.json first for better cache on later pushes
 COPY server/package.json package.json
-
-# This install npm dependencies on the resin.io build server,
-# making sure to clean up the artifacts it creates in order to reduce the image size.
 RUN JOBS=MAX npm install --production --unsafe-perm && npm cache clean && rm -rf /tmp/*
-
-# This will copy all files in our root to the working  directory in the container
-COPY server ./
 
 WORKDIR /usr/src/app/client
 COPY client/package.json package.json
 RUN JOBS=MAX npm install --production --unsafe-perm && npm cache clean && rm -rf /tmp/*
+
 COPY client ./
 RUN JOBS=MAX npm run build
 
-# Enable systemd init system in container
+WORKDIR /usr/src/app/server
+COPY server ./
+
 ENV INITSYSTEM on
 
-WORKDIR /usr/src/app/server
-
-# server.js will run when container starts up on the device
 CMD ["npm", "start"]

@@ -2,12 +2,13 @@ var express = require('express');
 var app = express();
 var expressWs = require('express-ws')(app);
 
+import Motor from './service/Motor'
+import MotorMock from './service/MotorMock'
+
 app.use(express.static('../client/build'))
 
-// reply to request with "Hello World!"
-app.get('/', function (req, res) {
-  res.send('Hello World!');
-});
+let motor = process.env.RESIN == 1 ? new Motor() : new MotorMock()
+let port = process.env.RESIN == 1 ? 80 : 3001
 
 app.get('/api/battery', function (req, res) {
   res.json({
@@ -16,17 +17,54 @@ app.get('/api/battery', function (req, res) {
   });
 });
 
+let move = command => {
+    switch(command.direction) {
+        case 'FORWARD':
+            motor.forward(command.speed)
+            break
+        case 'BACK':
+            motor.back(command.speed)
+            break
+        case 'LEFT':
+            motor.left(command.speed)
+            break
+        case 'RIGHT':
+            motor.right(command.speed)
+            break
+    }
+}
+
+let stop = motor.stop
+
 app.ws('/ws', function(ws, req) {
   ws.on('message', function(msg) {
-    console.log('received message from frontend "' + msg + '"');
+//    console.log('received message from frontend "' + msg + '"')
+
+    let command = JSON.parse(msg)
+
+    switch(command.type) {
+        case 'MOVE':
+            move(command.value)
+            break
+        case 'STOP':
+            stop()
+            break
+        default:
+            console.log('Unkcnown command')
+    }
+
     ws.send(msg);
   });
+})
+
+expressWs.getWss().on('connection', function(ws) {
+  console.log('connection open');
 });
 
-//start a server on port 80 and log its start to our console
-var server = app.listen(3001, function () {
+expressWs.getWss().on('close', function(ws) {
+  console.log('connection closed');
+});
 
-  var port = server.address().port;
-  console.log('Updated example app listening on port ', port);
-
+var server = app.listen(port, function () {
+  console.log('Rover server listening on port ', server.address().port);
 });
