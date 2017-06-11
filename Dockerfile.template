@@ -14,18 +14,18 @@ RUN npm install -g react-scripts
 
 WORKDIR /usr/src/app/server
 COPY server/package.json package.json
-RUN JOBS=MAX npm install --production --unsafe-perm && npm cache clean && rm -rf /tmp/*
+RUN JOBS=MAX npm install --unsafe-perm && npm cache clean && rm -rf /tmp/*
 
 WORKDIR /usr/src/app/client
 COPY client/package.json package.json
-RUN JOBS=MAX npm install --production --unsafe-perm && npm cache clean && rm -rf /tmp/*
+RUN JOBS=MAX npm install --unsafe-perm && npm cache clean && rm -rf /tmp/*
 
 COPY client ./
 RUN JOBS=MAX npm run build
 
 WORKDIR /usr/src/app/server
 # Remove this later
-RUN JOBS=MAX npm install --unsafe-perm && npm cache clean && rm -rf /tmp/*
+#RUN JOBS=MAX npm install --unsafe-perm && npm cache clean && rm -rf /tmp/*
 COPY server ./
 
 ENV INITSYSTEM on
