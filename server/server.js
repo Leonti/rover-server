@@ -41,7 +41,7 @@ let stop = motor.stop
 
 app.ws('/ws', function(ws, req) {
   ws.on('message', function(msg) {
-    console.log('received message from frontend "' + msg + '"')
+    //console.log('received message from frontend "' + msg + '"')
 
     let command = JSON.parse(msg)
 
