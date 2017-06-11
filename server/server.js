@@ -4,10 +4,13 @@ var expressWs = require('express-ws')(app);
 
 import Motor from './service/Motor'
 import MotorMock from './service/MotorMock'
+import Encoders from './service/Encoders'
+import EncodersMock from './service/EncodersMock'
 
 app.use(express.static('../client/build'))
 
 let motor = process.env.RESIN == 1 ? new Motor() : new MotorMock()
+let encoders = process.env.RESIN == 1 ? new Encoders() : new EncodersMock()
 let port = process.env.RESIN == 1 ? 80 : 3001
 
 app.get('/api/battery', function (req, res) {
@@ -57,8 +60,23 @@ app.ws('/ws', function(ws, req) {
   });
 })
 
+const sendEncoderEvent = (ws, side) => {
+    try {
+        ws.send(JSON.stringify({
+            type: 'ENCODER',
+            value: side
+        }))
+    } catch (e) {
+        console.log(e.message)
+    }
+}
+
 expressWs.getWss().on('connection', function(ws) {
   console.log('connection open');
+
+  encoders.onLeftTick(() => sendEncoderEvent(ws, 'LEFT'))
+
+  encoders.onRightTick(() => sendEncoderEvent(ws, 'RIGHT'))
 });
 
 expressWs.getWss().on('close', function(ws) {

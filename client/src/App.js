@@ -11,15 +11,35 @@ class App extends Component {
       speed: 40,
       wsConnected: false,
       wsError: false,
+      leftTicks: 0,
+      rightTicks: 0,
   }
 
   control = null
+
+  onEncoder(value) {
+      if (value == 'LEFT') {
+          this.setState({leftTicks: this.state.leftTicks + 1})
+      } else {
+          this.setState({rightTicks: this.state.rightTicks + 1})
+      }
+  }
+
+  processMessage(msg) {
+      switch(msg.type) {
+          case 'ENCODER':
+            this.onEncoder(msg.value)
+            break
+      }
+  }
 
   componentDidMount() {
     let server = new WebSocket(`ws://${window.location.host}/ws`)
     server.onopen = () => {
         this.setState({wsConnected: true})
         this.control = new Control(server)
+
+        server.onmessage = msg => this.processMessage(JSON.parse(msg.data))
     }
     server.onerror = err => this.setState({wsError: true})
 
@@ -48,6 +68,8 @@ class App extends Component {
         <h1>Rover</h1>
         {navigationView}
         {batteryView}
+        <div>{this.state.leftTicks}</div>
+        <div>{this.state.rightTicks}</div>
       </div>
     );
   }
