@@ -30,4 +30,47 @@ COPY server ./
 
 ENV INITSYSTEM on
 
-CMD ["npm", "start"]
+# Camera
+RUN apt-get update && apt-get install -y \
+  git \
+  wget \
+  curl \
+  build-essential \
+  python-dev \
+  python-pip \
+  libraspberrypi0 \
+  libraspberrypi-bin \
+  dnsmasq \
+  hostapd \
+  iproute2 \
+  iw \
+  libdbus-1-dev \
+  libexpat-dev \
+  rfkill && rm -rf /var/lib/apt/lists/*
+
+# Install UV4L
+RUN curl http://www.linux-projects.org/listing/uv4l_repo/lrkey.asc | sudo apt-key add - \
+  && sed -i '1s#^#deb http://www.linux-projects.org/listing/uv4l_repo/raspbian/ \
+jessie main\n#' /etc/apt/sources.list
+
+RUN apt-get update && apt-get install -y \
+  uv4l \
+  uv4l-raspicam \
+  uv4l-raspicam-extras \
+  uv4l-webrtc \
+  uv4l-server \
+  uv4l-xscreen \
+  uv4l-mjpegstream \
+  uv4l-dummy \
+  uv4l-uvc \
+  uv4l-raspidisp \
+  uv4l-xmpp-bridge \
+  && rm -rf /var/lib/apt/lists/*
+
+COPY uv4lconfig/uv4l-raspicam.conf /etc/uv4l/uv4l-raspicam.conf
+
+# Disable uv4l service - we will manually start it later
+RUN systemctl disable uv4l_raspicam
+
+#CMD ["npm", "start"]
+CMD ["systemctl", "start", "uv4l_raspicam"]
