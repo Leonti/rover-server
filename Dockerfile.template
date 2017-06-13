@@ -72,5 +72,9 @@ COPY uv4lconfig/uv4l-raspicam.conf /etc/uv4l/uv4l-raspicam.conf
 # Disable uv4l service - we will manually start it later
 RUN systemctl disable uv4l_raspicam
 
+RUN apt-get update && apt-get install -yq \
+    alsa-utils libasound2-dev && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
 #CMD ["npm", "start"]
 CMD ["systemctl", "start", "uv4l_raspicam"]
