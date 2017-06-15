@@ -64,6 +64,7 @@ COPY server ./
 ENV INITSYSTEM on
 
 COPY uv4lconfig/uv4l-raspicam.conf /etc/uv4l/uv4l-raspicam.conf
+COPY uv4lconfig/asound.conf /etc/asound.conf
 
 # Disable uv4l service - we will manually start it later
 RUN systemctl disable uv4l_raspicam
