@@ -3,6 +3,8 @@ import './App.css'
 
 import Battery from './components/Battery'
 import Navigation from './components/Navigation'
+import CameraView from './components/CameraView'
+
 import Control from './service/Control'
 
 class App extends Component {
@@ -68,6 +70,7 @@ class App extends Component {
         <h1>Rover</h1>
         {navigationView}
         {batteryView}
+        <CameraView />
         <div>{this.state.leftTicks}</div>
         <div>{this.state.rightTicks}</div>
       </div>
