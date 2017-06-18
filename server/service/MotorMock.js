@@ -1,10 +1,6 @@
 class MotorMock {
 
-    constructor() {
-        this.test = 'test'
-    }
-
-    forward = speed => console.log(`Motor: FORWARD with speed ${speed} ${this.test}`)
+    forward = speed => console.log(`Motor: FORWARD with speed ${speed}`)
 
     back = speed => console.log(`Motor: BACK with speed ${speed}`)
 

@@ -53,10 +53,10 @@ app.ws('/ws', function(ws, req) {
             stop()
             break
         default:
-            console.log('Unkcnown command')
+            console.log('Unknown command')
     }
 
-    ws.send(msg);
+//    ws.send(msg);
   });
 })
 
@@ -67,7 +67,7 @@ const sendEncoderEvent = (ws, side) => {
             value: side
         }))
     } catch (e) {
-        console.log(e.message)
+    //    console.log(e.message)
     }
 }
 

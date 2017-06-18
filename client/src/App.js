@@ -20,7 +20,7 @@ class App extends Component {
   control = null
 
   onEncoder(value) {
-      if (value == 'LEFT') {
+      if (value === 'LEFT') {
           this.setState({leftTicks: this.state.leftTicks + 1})
       } else {
           this.setState({rightTicks: this.state.rightTicks + 1})
@@ -32,6 +32,8 @@ class App extends Component {
           case 'ENCODER':
             this.onEncoder(msg.value)
             break
+          default:
+            console.log('Unknown server message', msg)
       }
   }
 
@@ -68,9 +70,12 @@ class App extends Component {
     return (
       <div className="App">
         <h1>Rover</h1>
-        {navigationView}
-        {batteryView}
+        <div className="control-panel">
         <CameraView />
+            {navigationView}
+
+        </div>
+        {batteryView}
         <div>{this.state.leftTicks}</div>
         <div>{this.state.rightTicks}</div>
       </div>
