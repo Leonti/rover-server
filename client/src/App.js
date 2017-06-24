@@ -10,7 +10,7 @@ import Control from './service/Control'
 class App extends Component {
   state = {
       battery: null,
-      speed: 40,
+      speed: "40",
       wsConnected: false,
       wsError: false,
       leftTicks: 0,
@@ -52,6 +52,10 @@ class App extends Component {
       .then(battery => this.setState({ battery }));
   }
 
+  onSpeedChange(event) {
+      this.setState({speed: event.target.value});
+  }
+
   render() {
 
     const batteryView = this.state.battery != null ?
@@ -60,10 +64,10 @@ class App extends Component {
         /> : null
     const navigationView = this.state.wsConnected ?
         <Navigation
-            onForward={() => this.control.forward(this.state.speed)}
-            onBack={() => this.control.back(this.state.speed)}
-            onLeft={() => this.control.left(this.state.speed)}
-            onRight={() => this.control.right(this.state.speed)}
+            onForward={() => this.control.forward(parseInt(this.state.speed))}
+            onBack={() => this.control.back(parseInt(this.state.speed))}
+            onLeft={() => this.control.left(parseInt(this.state.speed))}
+            onRight={() => this.control.right(parseInt(this.state.speed))}
             onStop={() => this.control.stop()}
         /> : <div>Connecting to rover</div>
 
@@ -75,9 +79,9 @@ class App extends Component {
             {navigationView}
 
         </div>
-        {batteryView}
-        <div>{this.state.leftTicks}</div>
-        <div>{this.state.rightTicks}</div>
+        <div>Speed: <input type="text" value={this.state.speed} onChange={this.onSpeedChange.bind(this)} /></div>
+        <div>Left: {this.state.leftTicks}</div>
+        <div>Right: {this.state.rightTicks}</div>
       </div>
     );
   }
