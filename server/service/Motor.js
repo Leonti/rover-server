@@ -9,7 +9,7 @@ class Motor {
 
     forward = speed => {
         this.l298n.setSpeed(this.motor.LEFT, speed)
-        this.l298n.setSpeed(this.motor.RIGHT, speed)
+        this.l298n.setSpeed(this.motor.RIGHT, speed * 1.1)
 
         this.l298n.forward(this.motor.LEFT)
         this.l298n.forward(this.motor.RIGHT)
