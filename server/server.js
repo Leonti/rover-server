@@ -9,8 +9,8 @@ import EncodersMock from './service/EncodersMock'
 
 app.use(express.static('../client/build'))
 
-let motor = process.env.RESIN == 1 ? new Motor() : new MotorMock()
 let encoders = process.env.RESIN == 1 ? new Encoders() : new EncodersMock()
+let motor = process.env.RESIN == 1 ? new Motor(encoders) : new MotorMock()
 let port = process.env.RESIN == 1 ? 80 : 3001
 
 app.get('/api/battery', function (req, res) {

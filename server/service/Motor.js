@@ -1,12 +1,17 @@
 class Motor {
 
     hasStopped = false
+    leftTicks = 0
+    rightTicks = 0
 
-    constructor() {
+    constructor(encoders) {
         this.motor = require('motor-l298n')
 
         // in1Pin, in2Pin, enable1Pin, in3Pin, in4Pin, enable2Pin
         this.l298n = this.motor.setup(5, 6, 13, 17, 27, 12);
+
+        encoders.onLeftTick(() => this.leftTicks = this.leftTicks + 1)
+        encoders.onRightTick(() => this.rightTicks = this.rightTicks + 1)
     }
 
     forward = speed => {
@@ -18,18 +23,29 @@ class Motor {
 
         this.hasStopped = false
 
-        this.schedulePwmIncrease(1, speed)
+        this.schedulePwmAdjustment(speed)
     }
 
-    schedulePwmIncrease = (currentSpeed, desiredSpeed) => {
-        this.l298n.setSpeed(this.motor.LEFT, currentSpeed)
-        this.l298n.setSpeed(this.motor.RIGHT, currentSpeed)
-
-        if (this.hasStopped || currentSpeed === desiredSpeed) {
+    schedulePwmIncrease = (speed) => {
+        if (this.hasStopped) {
             return
         }
 
-        setTimeout(() => this.schedulePwmIncrease(currentSpeed + 1, desiredSpeed), 25)
+        console.log('leftTicks', this.leftTicks)
+        console.log('rightTicks', this.rightTicks)
+
+        if (this.leftTicks > this.rightTicks) {
+            this.l298n.setSpeed(this.motor.LEFT, speed)
+            this.l298n.setSpeed(this.motor.RIGHT, speed * 1.5)
+        } else if (this.leftTicks < this.rightTicks) {
+            this.l298n.setSpeed(this.motor.LEFT, speed * 1.5)
+            this.l298n.setSpeed(this.motor.RIGHT, speed)
+        } else {
+            this.l298n.setSpeed(this.motor.LEFT, speed)
+            this.l298n.setSpeed(this.motor.RIGHT, speed)
+        }
+
+        setTimeout(() => this.schedulePwmIncrease(speed), 100)
     }
 
     back = speed => {
