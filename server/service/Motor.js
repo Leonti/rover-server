@@ -47,7 +47,7 @@ class Motor {
             this.l298n.setSpeed(this.motor.RIGHT, speed)
         }
 
-        setTimeout(() => this.schedulePwmAdjustment(speed), 100)
+        setTimeout(() => this.schedulePwmAdjustment(speed), 20)
     }
 
     back = speed => {
