@@ -33,15 +33,12 @@ class Motor {
             return
         }
 
-        console.log('leftTicks', this.leftTicks)
-        console.log('rightTicks', this.rightTicks)
-
         if (this.leftTicks > this.rightTicks) {
-            this.l298n.setSpeed(this.motor.LEFT, speed * 1.5)
+            this.l298n.setSpeed(this.motor.LEFT, speed * 1.2)
             this.l298n.setSpeed(this.motor.RIGHT, speed)
         } else if (this.leftTicks < this.rightTicks) {
             this.l298n.setSpeed(this.motor.LEFT, speed)
-            this.l298n.setSpeed(this.motor.RIGHT, speed * 1.5)
+            this.l298n.setSpeed(this.motor.RIGHT, speed * 1.2)
         } else {
             this.l298n.setSpeed(this.motor.LEFT, speed)
             this.l298n.setSpeed(this.motor.RIGHT, speed)
