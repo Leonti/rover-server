@@ -22,6 +22,8 @@ class Motor {
         this.l298n.forward(this.motor.RIGHT)
 
         this.hasStopped = false
+        this.leftTicks = 0
+        this.rightTicks = 0
 
         this.schedulePwmAdjustment(speed)
     }
