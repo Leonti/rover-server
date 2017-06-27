@@ -16,6 +16,8 @@ class Motor {
         this.l298n.forward(this.motor.LEFT)
         this.l298n.forward(this.motor.RIGHT)
 
+        this.hasStopped = false
+
         this.schedulePwmIncrease(1, speed)
     }
 
@@ -27,7 +29,7 @@ class Motor {
             return
         }
 
-        setTimeout(() => this.schedulePwmIncrease(currentSpeed + 1, desiredSpeed), 50)
+        setTimeout(() => this.schedulePwmIncrease(currentSpeed + 1, desiredSpeed), 25)
     }
 
     back = speed => {
