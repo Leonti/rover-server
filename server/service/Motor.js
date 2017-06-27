@@ -26,7 +26,7 @@ class Motor {
         this.schedulePwmAdjustment(speed)
     }
 
-    schedulePwmIncrease = (speed) => {
+    schedulePwmAdjustment = (speed) => {
         if (this.hasStopped) {
             return
         }
