@@ -26,7 +26,8 @@
   "dependencies": {
     "express": "*",
     "express-ws": "^3.0.0",
-    "motor-l298n": "0.0.1"
+    "motor-l298n": "0.0.1",
+    "mcp3008.js": "0.4.0"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",

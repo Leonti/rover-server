@@ -15,9 +15,6 @@ class Motor {
     }
 
     forward = speed => {
-        //this.l298n.setSpeed(this.motor.LEFT, speed)
-        //this.l298n.setSpeed(this.motor.RIGHT, speed)
-
         this.l298n.forward(this.motor.LEFT)
         this.l298n.forward(this.motor.RIGHT)
 
@@ -48,11 +45,14 @@ class Motor {
     }
 
     back = speed => {
-        this.l298n.setSpeed(this.motor.LEFT, speed);
-        this.l298n.setSpeed(this.motor.RIGHT, speed);
+        this.l298n.backward(this.motor.LEFT)
+        this.l298n.backward(this.motor.RIGHT)
 
-        this.l298n.backward(this.motor.LEFT);
-        this.l298n.backward(this.motor.RIGHT);
+        this.hasStopped = false
+        this.leftTicks = 0
+        this.rightTicks = 0
+
+        this.schedulePwmAdjustment(speed)
     }
 
     left = speed => {

@@ -6,11 +6,14 @@ import Motor from './service/Motor'
 import MotorMock from './service/MotorMock'
 import Encoders from './service/Encoders'
 import EncodersMock from './service/EncodersMock'
+import IrSensors from './service/IrSensors'
+import IrSensorsMock from './service/IrSensorsMock'
 
 app.use(express.static('../client/build'))
 
 let encoders = process.env.RESIN == 1 ? new Encoders() : new EncodersMock()
 let motor = process.env.RESIN == 1 ? new Motor(encoders) : new MotorMock()
+let irSensors = process.env.RESIN == 1 ? new IrSensors() : new IrSensorsMock()
 let port = process.env.RESIN == 1 ? 80 : 3001
 
 app.get('/api/battery', function (req, res) {
@@ -71,12 +74,25 @@ const sendEncoderEvent = (ws, side) => {
     }
 }
 
+const sendIrSensorEvent = (ws, sensorData) => {
+  try {
+      ws.send(JSON.stringify({
+          type: 'IR_SENSOR',
+          value: sensorData
+      }))
+  } catch (e) {
+  //    console.log(e.message)
+  }
+}
+
 expressWs.getWss().on('connection', function(ws) {
   console.log('connection open');
 
   encoders.onLeftTick(() => sendEncoderEvent(ws, 'LEFT'))
 
   encoders.onRightTick(() => sendEncoderEvent(ws, 'RIGHT'))
+
+  irSensors.onUpdate(sensorData => sendIrSensorEvent(ws, sensorData))
 });
 
 expressWs.getWss().on('close', function(ws) {

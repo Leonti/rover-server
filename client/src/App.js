@@ -15,6 +15,7 @@ class App extends Component {
       wsError: false,
       leftTicks: 0,
       rightTicks: 0,
+      irState: null,
   }
 
   control = null
@@ -27,10 +28,17 @@ class App extends Component {
       }
   }
 
+  onIrSensor(value) {
+      this.setState({irState: value.front1})
+  }
+
   processMessage(msg) {
       switch(msg.type) {
           case 'ENCODER':
             this.onEncoder(msg.value)
+            break
+          case 'IR_SENSOR':
+            this.onIrSensor(msg.value)
             break
           default:
             console.log('Unknown server message', msg)
@@ -82,6 +90,7 @@ class App extends Component {
         <div>Speed: <input type="text" value={this.state.speed} onChange={this.onSpeedChange.bind(this)} /></div>
         <div>Left: {this.state.leftTicks}</div>
         <div>Right: {this.state.rightTicks}</div>
+        <div>Ir: {this.state.irState}</div>
       </div>
     );
   }
