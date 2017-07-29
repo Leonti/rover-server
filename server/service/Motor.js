@@ -34,8 +34,8 @@ class Motor {
     }
 
     forward = speed => {
-        this.l298n.backward(this.motor.LEFT)
-        this.l298n.backward(this.motor.RIGHT)
+        this.l298n.forward(this.motor.LEFT)
+        this.l298n.forward(this.motor.RIGHT)
 
         this.hasStopped = false
         this.leftTicks = 0
@@ -45,8 +45,8 @@ class Motor {
     }
 
     back = speed => {
-        this.l298n.forward(this.motor.LEFT)
-        this.l298n.forward(this.motor.RIGHT)
+        this.l298n.backward(this.motor.LEFT)
+        this.l298n.backward(this.motor.RIGHT)
 
         this.hasStopped = false
         this.leftTicks = 0
