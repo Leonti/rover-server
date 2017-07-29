@@ -8,7 +8,7 @@ class IrSensors {
 
       const adc = new Mcp3008()
 
-      instance.poll(0, 300, value => {
+      adc.poll(0, 300, value => {
         this.callbacks.forEach(c => c({front1: value}))
       });
     }
