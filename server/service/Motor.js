@@ -8,21 +8,10 @@ class Motor {
         this.motor = require('motor-l298n')
 
         // in1Pin, in2Pin, enable1Pin, in3Pin, in4Pin, enable2Pin
-        this.l298n = this.motor.setup(17, 27, 12, 5, 6, 13);
+        this.l298n = this.motor.setup(5, 6, 13, 17, 27, 12);
 
         encoders.onLeftTick(() => this.leftTicks = this.leftTicks + 1)
         encoders.onRightTick(() => this.rightTicks = this.rightTicks + 1)
-    }
-
-    forward = speed => {
-        this.l298n.forward(this.motor.LEFT)
-        this.l298n.forward(this.motor.RIGHT)
-
-        this.hasStopped = false
-        this.leftTicks = 0
-        this.rightTicks = 0
-
-        this.schedulePwmAdjustment(speed)
     }
 
     schedulePwmAdjustment = (speed) => {
@@ -44,9 +33,20 @@ class Motor {
         setTimeout(() => this.schedulePwmAdjustment(speed), 20)
     }
 
-    back = speed => {
+    forward = speed => {
         this.l298n.backward(this.motor.LEFT)
         this.l298n.backward(this.motor.RIGHT)
+
+        this.hasStopped = false
+        this.leftTicks = 0
+        this.rightTicks = 0
+
+        this.schedulePwmAdjustment(speed)
+    }
+
+    back = speed => {
+        this.l298n.forward(this.motor.LEFT)
+        this.l298n.forward(this.motor.RIGHT)
 
         this.hasStopped = false
         this.leftTicks = 0
