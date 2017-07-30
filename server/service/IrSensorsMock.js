@@ -11,7 +11,7 @@ class IrSensors {
                 right: true,
               },
               left: {
-                front: false,
+                front: true,
                 rear: false,
               },
               front: {

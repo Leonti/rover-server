@@ -31,21 +31,21 @@ class IrSensors {
               right: values[2] < 100,
             },
             left: {
-              front: values[4] < 100,
-              rear: values[3] < 100,
+              front: values[7] < 100,
+              rear: values[0] < 100,
             },
             front: {
               left: values[6] < 100,
               right: values[5] < 100,
             },
             right: {
-              front: values[7] < 100,
-              rear: values[0] < 100,
+              front: values[4] < 100,
+              rear: values[3] < 100,
             }
           }))
         })
 
-      }, 300)
+      }, 50)
     }
 
     onUpdate = sensorDataCallback => this.callbacks.push(sensorDataCallback)
