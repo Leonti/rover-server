@@ -4,6 +4,7 @@ import './App.css'
 import Battery from './components/Battery'
 import Navigation from './components/Navigation'
 import CameraView from './components/CameraView'
+import Rover from './components/Rover'
 
 import Control from './service/Control'
 
@@ -15,14 +16,7 @@ class App extends Component {
       wsError: false,
       leftTicks: 0,
       rightTicks: 0,
-      ir0: null,
-      ir1: null,
-      ir2: null,
-      ir3: null,
-      ir4: null,
-      ir5: null,
-      ir6: null,
-      ir7: null,
+      ir: null,
   }
 
   control = null
@@ -36,16 +30,7 @@ class App extends Component {
   }
 
   onIrSensor(value) {
-      this.setState({
-        ir0: value.c0,
-        ir1: value.c1,
-        ir2: value.c2,
-        ir3: value.c3,
-        ir4: value.c4,
-        ir5: value.c5,
-        ir6: value.c6,
-        ir7: value.c7,
-      })
+      this.setState({ ir: value })
   }
 
   processMessage(msg) {
@@ -99,21 +84,18 @@ class App extends Component {
       <div className="App">
         <h1>Rover</h1>
         <div className="control-panel">
-        <CameraView />
-            {navigationView}
-
+          <CameraView />
+          {navigationView}
         </div>
+        <Rover
+          rear={!this.state.ir ? false : this.state.ir.rear}
+          left={!this.state.ir ? false : this.state.ir.left}
+          front={!this.state.ir ? false : this.state.ir.front}
+          right={!this.state.ir ? false : this.state.ir.right}
+        />
         <div>Speed: <input type="text" value={this.state.speed} onChange={this.onSpeedChange.bind(this)} /></div>
         <div>Left: {this.state.leftTicks}</div>
         <div>Right: {this.state.rightTicks}</div>
-        <div>Ir0: {this.state.ir0}</div>
-        <div>Ir1: {this.state.ir1}</div>
-        <div>Ir2: {this.state.ir2}</div>
-        <div>Ir3: {this.state.ir3}</div>
-        <div>Ir4: {this.state.ir4}</div>
-        <div>Ir5: {this.state.ir5}</div>
-        <div>Ir6: {this.state.ir6}</div>
-        <div>Ir7: {this.state.ir7}</div>
       </div>
     );
   }

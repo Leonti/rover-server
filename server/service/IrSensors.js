@@ -24,17 +24,24 @@ class IrSensors {
           getAsPromise(6),
           getAsPromise(7),
         ]).then(values => {
-          console.log(values)
 
           this.callbacks.forEach(c => c({
-            c0: values[0],
-            c1: values[1],
-            c2: values[2],
-            c3: values[3],
-            c4: values[4],
-            c5: values[5],
-            c6: values[6],
-            c7: values[7],
+            rear: {
+              left: values[1] < 100,
+              right: values[2] < 100,
+            },
+            left: {
+              front: values[4] < 100,
+              rear: values[3] < 100,
+            },
+            front: {
+              left: values[6] < 100,
+              right: values[5] < 100,
+            },
+            right: {
+              front: values[7] < 100,
+              rear: values[0] < 100,
+            }
           }))
         })
 
