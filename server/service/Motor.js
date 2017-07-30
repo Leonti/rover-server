@@ -1,10 +1,11 @@
 class Motor {
 
     hasStopped = false
+    direction = null
     leftTicks = 0
     rightTicks = 0
 
-    constructor(encoders) {
+    constructor(encoders, irSensors) {
         this.motor = require('motor-l298n')
 
         // in1Pin, in2Pin, enable1Pin, in3Pin, in4Pin, enable2Pin
@@ -12,6 +13,20 @@ class Motor {
 
         encoders.onLeftTick(() => this.leftTicks = this.leftTicks + 1)
         encoders.onRightTick(() => this.rightTicks = this.rightTicks + 1)
+
+        irSensors.onUpdate(value => {
+
+          if (this.direction === 'FORWARD'
+            && (value.front.left === true || value.front.right === true)) {
+            this.stop()
+          }
+
+          if (this.direction === 'BACKWARD' 
+            && (value.rear.left === true || value.rear.right === true)) {
+            this.stop()
+          }
+
+        })
     }
 
     schedulePwmAdjustment = (speed) => {
@@ -37,6 +52,7 @@ class Motor {
         this.l298n.forward(this.motor.LEFT)
         this.l298n.forward(this.motor.RIGHT)
 
+        this.direction = 'FORWARD'
         this.hasStopped = false
         this.leftTicks = 0
         this.rightTicks = 0
@@ -48,6 +64,7 @@ class Motor {
         this.l298n.backward(this.motor.LEFT)
         this.l298n.backward(this.motor.RIGHT)
 
+        this.direction = 'BACKWARD'
         this.hasStopped = false
         this.leftTicks = 0
         this.rightTicks = 0
@@ -61,6 +78,8 @@ class Motor {
 
         this.l298n.forward(this.motor.LEFT);
         this.l298n.backward(this.motor.RIGHT);
+
+        this.direction = null
     }
 
     right = speed => {
@@ -69,6 +88,8 @@ class Motor {
 
         this.l298n.backward(this.motor.LEFT);
         this.l298n.forward(this.motor.RIGHT);
+
+        this.direction = null
     }
 
     stop = () => {
@@ -78,6 +99,7 @@ class Motor {
         this.l298n.setSpeed(this.motor.LEFT, 0);
         this.l298n.setSpeed(this.motor.RIGHT, 0);
         this.hasStopped = true;
+        this.direction = null
     }
 
 }

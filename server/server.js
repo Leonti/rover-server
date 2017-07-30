@@ -12,8 +12,8 @@ import IrSensorsMock from './service/IrSensorsMock'
 app.use(express.static('../client/build'))
 
 let encoders = process.env.RESIN == 1 ? new Encoders() : new EncodersMock()
-let motor = process.env.RESIN == 1 ? new Motor(encoders) : new MotorMock()
 let irSensors = process.env.RESIN == 1 ? new IrSensors() : new IrSensorsMock()
+let motor = process.env.RESIN == 1 ? new Motor(encoders, irSensors) : new MotorMock()
 let port = process.env.RESIN == 1 ? 80 : 3001
 
 app.get('/api/battery', function (req, res) {
