@@ -11,7 +11,7 @@ import Control from './service/Control'
 class App extends Component {
   state = {
       battery: null,
-      speed: "40",
+      speed: "30",
       wsConnected: false,
       wsError: false,
       leftTicks: 0,
