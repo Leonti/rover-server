@@ -39,6 +39,8 @@ RUN apt-get update && apt-get install -y \
   uv4l-xmpp-bridge \
   && rm -rf /var/lib/apt/lists/*
 
+RUN apt-get update && apt-get install -y i2c-tools 
+
 #RUN npm install -g react-scripts
 
 WORKDIR /usr/src/app/server

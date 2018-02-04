@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "babel-node server.js --presets es2015,stage-2"
+    "start": "modprobe i2c-dev && babel-node server.js --presets es2015,stage-2"
   },
   "repository": {
     "type": "git",
@@ -27,7 +27,10 @@
     "express": "*",
     "express-ws": "^3.0.0",
     "motor-l298n": "0.0.1",
-    "mcp3008.js": "0.4.0"
+    "mcp3008.js": "0.4.0",
+    "serialport": "^6.0.4",
+    "i2c": "0.2.3",
+    "node-cmd": "3.0.0"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",

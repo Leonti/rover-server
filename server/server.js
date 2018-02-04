@@ -1,6 +1,7 @@
 var express = require('express');
 var app = express();
 var expressWs = require('express-ws')(app);
+var cmd=require('node-cmd');
 
 import Motor from './service/Motor'
 import MotorMock from './service/MotorMock'
@@ -8,13 +9,23 @@ import Encoders from './service/Encoders'
 import EncodersMock from './service/EncodersMock'
 import IrSensors from './service/IrSensors'
 import IrSensorsMock from './service/IrSensorsMock'
+import Arduino from './service/Arduino'
+import ArduinoMock from './service/ArduinoMock'
 
 app.use(express.static('../client/build'))
 
-let encoders = process.env.RESIN == 1 ? new Encoders() : new EncodersMock()
-let irSensors = process.env.RESIN == 1 ? new IrSensors() : new IrSensorsMock()
-let motor = process.env.RESIN == 1 ? new Motor(encoders, irSensors) : new MotorMock()
-let port = process.env.RESIN == 1 ? 80 : 3001
+const encoders = process.env.RESIN == 1 ? new Encoders() : new EncodersMock()
+const irSensors = process.env.RESIN == 1 ? new IrSensors() : new IrSensorsMock()
+const motor = process.env.RESIN == 1 ? new Motor(encoders, irSensors) : new MotorMock()
+const arduino = process.env.RESIN == 1 ? new Arduino() : new ArduinoMock()
+const port = process.env.RESIN == 1 ? 80 : 3001
+
+cmd.get(
+    'i2cdetect -y 1',
+    function(err, data, stderr){
+        console.log('I2C devices : ',data)
+    }
+);
 
 app.get('/api/battery', function (req, res) {
   res.json({
@@ -85,6 +96,17 @@ const sendIrSensorEvent = (ws, sensorData) => {
   }
 }
 
+const sendBatteryEvent = (ws, sensorData) => {
+  try {
+      ws.send(JSON.stringify({
+          type: 'BATTERY',
+          value: sensorData
+      }))
+  } catch (e) {
+  //    console.log(e.message)
+  }
+}
+
 expressWs.getWss().on('connection', function(ws) {
   console.log('connection open');
 
@@ -93,6 +115,8 @@ expressWs.getWss().on('connection', function(ws) {
   encoders.onRightTick(() => sendEncoderEvent(ws, 'RIGHT'))
 
   irSensors.onUpdate(sensorData => sendIrSensorEvent(ws, sensorData))
+
+  arduino.onBattery(sensorData => sendBatteryEvent(ws, sensorData))
 });
 
 expressWs.getWss().on('close', function(ws) {

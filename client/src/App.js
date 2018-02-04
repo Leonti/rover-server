@@ -33,6 +33,10 @@ class App extends Component {
       this.setState({ ir: value })
   }
 
+  onBattery(value) {
+    this.setState({ battery: value })
+  }
+
   processMessage(msg) {
       switch(msg.type) {
           case 'ENCODER':
@@ -40,6 +44,9 @@ class App extends Component {
             break
           case 'IR_SENSOR':
             this.onIrSensor(msg.value)
+            break
+          case 'BATTERY':
+            this.onBattery(msg.value)
             break
           default:
             console.log('Unknown server message', msg)
@@ -55,10 +62,6 @@ class App extends Component {
         server.onmessage = msg => this.processMessage(JSON.parse(msg.data))
     }
     server.onerror = err => this.setState({wsError: true})
-
-    fetch('/api/battery')
-      .then(res => res.json())
-      .then(battery => this.setState({ battery }));
   }
 
   onSpeedChange(event) {
@@ -87,6 +90,7 @@ class App extends Component {
           <CameraView />
           {navigationView}
         </div>
+        {batteryView}
         <Rover
           rear={!this.state.ir ? false : this.state.ir.rear}
           left={!this.state.ir ? false : this.state.ir.left}

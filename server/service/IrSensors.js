@@ -1,4 +1,4 @@
-let Mcp3008 = require('mcp3008.js')
+const Mcp3008 = require('mcp3008.js')
 
 class IrSensors {
 
