@@ -24,13 +24,17 @@
   },
   "homepage": "https://github.com/resin-io-projects/simple-server-node#readme",
   "dependencies": {
+    "adxl345-sensor": "0.0.8",
+    "compass-hmc5883l": "^1.0.2",
     "express": "*",
     "express-ws": "^3.0.0",
-    "motor-l298n": "0.0.1",
-    "mcp3008.js": "0.4.0",
-    "serialport": "^6.0.4",
+    "gyroscope-itg3200": "^0.5.6",
     "i2c": "0.2.3",
-    "node-cmd": "3.0.0"
+    "mcp3008.js": "0.4.0",
+    "motor-l298n": "0.0.1",
+    "node-cmd": "3.0.0",
+    "serialport": "^6.0.4",
+    "split": "^1.0.1"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",
