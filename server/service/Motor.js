@@ -6,6 +6,7 @@ class Motor {
     rightTicks = 0
 
     constructor(encoders, irSensors) {
+      /*
         this.motor = require('motor-l298n')
 
         // in1Pin, in2Pin, enable1Pin, in3Pin, in4Pin, enable2Pin
@@ -21,12 +22,14 @@ class Motor {
             this.stop()
           }
 
-          if (this.direction === 'BACKWARD' 
+          if (this.direction === 'BACKWARD'
             && (value.rear.left === true || value.rear.right === true)) {
             this.stop()
           }
 
         })
+
+        */
     }
 
     schedulePwmAdjustment = (speed) => {

@@ -6,7 +6,7 @@ class Encoders {
     constructor() {
       setTimeout(() => {
         try {
-          const wpi = require('wiring-pi')
+          const wpi = require('wiringpi-node')
           wpi.setup('gpio')
 
           // gpio 22 - right
