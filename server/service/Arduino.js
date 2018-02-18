@@ -16,8 +16,8 @@ const parseTempMeasurements = line => {
   const splitted = line.replace('\r', '').substring(2).split(',')
 
   return {
-    battery: parseFloat(splitted[0]),
-    ambient: parseFloat(splitted[1])
+    battery: parseFloat(splitted[1]),
+    ambient: parseFloat(splitted[0])
   }
 }
 
