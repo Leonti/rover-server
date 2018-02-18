@@ -1,7 +1,7 @@
 const SerialPort = require("serialport");
 const Readline = SerialPort.parsers.Readline;
 
-const calculateAngle = percentage => 22 + 153 * percentage
+const calculateAngle = percentage => 22 + 153 * percentage / 100
 
 const parseBatteryMeasurements = line => {
   const splitted = line.replace('\r', '').substring(2).split(',')
