@@ -1,8 +1,8 @@
-FROM resin/%%RESIN_MACHINE_NAME%%-node:7.9.0
+FROM resin/%%RESIN_MACHINE_NAME%%-node:8.0.0
 
-# RESIN_HOST_CONFIG_dtoverlay pi3-miniuart-bt
 
 # Camera and audio
+# RESIN_HOST_CONFIG_dtoverlay pi3-miniuart-bt
 RUN apt-get update && apt-get install -y \
 #  git \
 #  wget \
