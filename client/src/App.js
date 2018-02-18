@@ -80,7 +80,7 @@ class App extends Component {
   onAngleChange(event) {
     const angle = event.target.value
     this.setState({cameraAngle: angle})
-    this.control.setCameraAngle(angle)
+    this.control.setCameraAngle(100 - angle)
   }
 
   render() {
