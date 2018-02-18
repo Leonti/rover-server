@@ -12,6 +12,15 @@ const parseBatteryMeasurements = line => {
   }
 }
 
+const parseTempMeasurements = line => {
+  const splitted = line.replace('\r', '').substring(2).split(',')
+
+  return {
+    battery: parseFloat(splitted[0]),
+    ambient: parseFloat(splitted[1])
+  }
+}
+
 class Arduino {
 
   constructor() {
@@ -34,6 +43,10 @@ class Arduino {
             //console.log(data)
             if (data.indexOf('B:') === 0) {
               this.batteryListeners.forEach(l => l(parseBatteryMeasurements(data)))
+            } else if (data.indexOf('T:') === 0) {
+              this.tempListeners.forEach(l => l(parseTempMeasurements(data)))
+            } else if (data.indexOf('BTN:') === 0) {
+              this.buttonListeners.forEach(l => l({}))
             }
           })
           resolve(serialPort)
@@ -42,16 +55,38 @@ class Arduino {
     })
 
     this.batteryListeners = []
+    this.tempListeners = []
+    this.buttonListeners = []
   }
 
-  onBattery(listener) {
-    this.batteryListeners.push(listener)
+  onBattery(l) {
+    this.batteryListeners.push(l)
+  }
+
+  onTemp(l) {
+    this.tempListeners.push(l)
+  }
+
+  onButton(l) {
+    this.buttonListeners.push(l)
   }
 
   setAngle(percentage) {
     return this.port.then(serialPort => new Promise((resolve, reject) => {
       const angle = calculateAngle(percentage)
       serialPort.write(`S${angle}`, 'ascii', (err) => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve()
+        }
+  		})
+    }), err => console.log(err))
+  }
+
+  off(timeout) {
+    return this.port.then(serialPort => new Promise((resolve, reject) => {
+      serialPort.write(`O${timeout}`, 'ascii', (err) => {
         if (err) {
           reject(err)
         } else {

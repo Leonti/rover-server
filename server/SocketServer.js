@@ -2,27 +2,24 @@ const net = require('net')
 const split = require('split')
 
 import Motor from './service/Motor'
-import MotorMock from './service/MotorMock'
 import Encoders from './service/Encoders'
-import EncodersMock from './service/EncodersMock'
 import IrSensors from './service/IrSensors'
-import IrSensorsMock from './service/IrSensorsMock'
 import Arduino from './service/Arduino'
-import ArduinoMock from './service/ArduinoMock'
-
-const encoders = process.env.RESIN == 1 ? new Encoders() : new EncodersMock()
-const irSensors = process.env.RESIN == 1 ? new IrSensors() : new IrSensorsMock()
-const motor = process.env.RESIN == 1 ? new Motor(encoders, irSensors) : new MotorMock()
-const arduino = process.env.RESIN == 1 ? new Arduino() : new ArduinoMock()
 
 class SocketServer {
 
   constructor() {
+
+    const encoders = new Encoders()
+    const irSensors = new IrSensors()
+    const motor = new Motor(encoders, irSensors)
+    const arduino = new Arduino()
+
     this.sockets = []
     const server = net.createServer(socket => {
 
       const stream = socket.pipe(split())
-      stream.on('data', onIncomingData)
+      stream.on('data', onIncomingData(motor, arduino))
 
       console.log('Socket is connected!')
       this.sockets.push(socket)
@@ -35,6 +32,10 @@ class SocketServer {
       irSensors.onUpdate(data => this.broadcastToSockets(s => sendIrSensorEventToSocket(s, data)))
 
       arduino.onBattery(data => this.broadcastToSockets(s => sendBatteryEventToSocket(s, data)))
+
+      arduino.onTemp(data => this.broadcastToSockets(s => sendTempEventToSocket(s, data)))
+
+      arduino.onButton(data => this.broadcastToSockets(s => sendButtonEventToSocket(s, data)))
 
       socket.on('close', () => {
         console.log('socket is closed')
@@ -53,7 +54,7 @@ class SocketServer {
 
 }
 
-let move = command => {
+let move = (motor, command) => {
     switch(command.direction) {
         case 'FORWARD':
             motor.forward(command.speed)
@@ -70,47 +71,44 @@ let move = command => {
     }
 }
 
-let stop = motor.stop
+const off = (arduino, command) => {
+  arduino.off(command.timeout)
+}
 
-const onIncomingData = data => {
+const onIncomingData = (motor, arduino) => data => {
   console.log(data)
 
   let command = JSON.parse(data)
   switch(command.type) {
       case 'MOVE':
-          move(command.value)
+          move(motor, command.value)
           break
       case 'STOP':
-          stop()
+          motor.stop()
+          break
+      case 'OFF':
+          arduino.off(command.value.timeout)
+          break
+      case 'CAMERA_ANGLE':
+          arduino.setAngle(command.value.angle)
           break
       default:
           console.log('Unknown command')
   }
 }
 
-const sendEncoderEventToSocket = (socket, side) => {
-    try {
-        socket.write(JSON.stringify({
-            type: 'ENCODER',
-            value: side
-        }) + '\n')
-    } catch (e) { }
-}
+const sendEncoderEventToSocket = (socket, side) => sendEvent(socket, 'ENCODER', side)
+const sendIrSensorEventToSocket = (socket, sensorData) => sendEvent(socket, 'IR_SENSOR', sensorData)
+const sendBatteryEventToSocket = (socket, sensorData) => sendEvent(socket, 'BATTERY', sensorData)
+const sendTempEventToSocket = (socket, sensorData) => sendEvent(socket, 'TEMP', sensorData)
+const sendButtonEventToSocket = (socket, sensorData) => sendEvent(socket, 'BUTTON', sensorData)
 
-const sendIrSensorEventToSocket = (socket, sensorData) => {
+const sendEvent = (socket, type, data) => {
   try {
       socket.write(JSON.stringify({
-          type: 'IR_SENSOR',
-          value: sensorData
-      }) + '\n')
-  } catch (e) { }
-}
-
-const sendBatteryEventToSocket = (socket, sensorData) => {
-  try {
-      socket.write(JSON.stringify({
-          type: 'BATTERY',
-          value: sensorData
+          time: new Date().getTime(),
+          type: type,
+          value: data
       }) + '\n')
   } catch (e) { }
 }

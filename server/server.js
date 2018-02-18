@@ -4,6 +4,7 @@ var expressWs = require('express-ws')(app);
 var cmd=require('node-cmd');
 
 import SocketServer from './SocketServer'
+import SocketServerMock from './SocketServerMock'
 
 const net = require('net')
 const split = require('split')
@@ -18,7 +19,7 @@ cmd.get(
 );
 
 const port = process.env.RESIN == 1 ? 80 : 3001
-const socketServer = new SocketServer()
+const socketServer = process.env.RESIN == 1 ? new SocketServer() : new SocketServerMock()
 
 const client = new net.Socket()
 client.connect(5000, '127.0.0.1', () => {

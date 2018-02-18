@@ -11,7 +11,9 @@ import Control from './service/Control'
 class App extends Component {
   state = {
       battery: null,
+      temp: null,
       speed: "30",
+      cameraAngle: 50,
       wsConnected: false,
       wsError: false,
       leftTicks: 0,
@@ -37,6 +39,10 @@ class App extends Component {
     this.setState({ battery: value })
   }
 
+  onTemp(value) {
+    this.setState({ temp: value })
+  }
+
   processMessage(msg) {
       switch(msg.type) {
           case 'ENCODER':
@@ -47,6 +53,9 @@ class App extends Component {
             break
           case 'BATTERY':
             this.onBattery(msg.value)
+            break
+          case 'TEMP':
+            this.onTemp(msg.value)
             break
           default:
             console.log('Unknown server message', msg)
@@ -65,7 +74,13 @@ class App extends Component {
   }
 
   onSpeedChange(event) {
-      this.setState({speed: event.target.value});
+      this.setState({speed: event.target.value})
+  }
+
+  onAngleChange(event) {
+    const angle = event.target.value
+    this.setState({cameraAngle: angle})
+    this.control.setCameraAngle(angle)
   }
 
   render() {
@@ -73,6 +88,7 @@ class App extends Component {
     const batteryView = this.state.battery != null ?
         <Battery
             battery={this.state.battery}
+            batteryTemp={this.state.temp ? this.state.temp.battery : null}
         /> : null
     const navigationView = this.state.wsConnected ?
         <Navigation
@@ -97,9 +113,13 @@ class App extends Component {
           front={!this.state.ir ? false : this.state.ir.front}
           right={!this.state.ir ? false : this.state.ir.right}
         />
-        <div>Speed: <input type="text" value={this.state.speed} onChange={this.onSpeedChange.bind(this)} /></div>
+        <div className="slider-wrapper">
+          <input type="range" min="0" max="100" value={this.state.cameraAngle} onChange={this.onAngleChange.bind(this)} step="1" />
+        </div>
+        <div>Speed: <input type="range" min="0" max="100" value={this.state.speed} onChange={this.onSpeedChange.bind(this)} /></div>
         <div>Left: {this.state.leftTicks}</div>
         <div>Right: {this.state.rightTicks}</div>
+        <div>Room temperature: {this.state.temp ? this.state.temp.ambient : null}</div>
       </div>
     );
   }

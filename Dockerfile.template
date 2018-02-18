@@ -1,5 +1,7 @@
 FROM resin/%%RESIN_MACHINE_NAME%%-node:7.9.0
 
+# RESIN_HOST_CONFIG_dtoverlay pi3-miniuart-bt
+
 # Camera and audio
 RUN apt-get update && apt-get install -y \
 #  git \
@@ -39,7 +41,7 @@ RUN apt-get update && apt-get install -y \
   uv4l-xmpp-bridge \
   && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update && apt-get install -y i2c-tools 
+RUN apt-get update && apt-get install -y i2c-tools
 
 #RUN npm install -g react-scripts
 

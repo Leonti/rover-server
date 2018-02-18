@@ -9,6 +9,15 @@ const move = (speed, direction) => {
     }
 }
 
+const cameraAngle = (angle) => {
+  return {
+      type: 'CAMERA_ANGLE',
+      value: {
+          angle: angle
+      }
+  }
+}
+
 class Control {
 
     constructor(ws) {
@@ -23,6 +32,7 @@ class Control {
         type: 'STOP'
     }))
 
+    setCameraAngle = angle => this.ws.send(JSON.stringify(cameraAngle(angle)))
 }
 
 export default Control
