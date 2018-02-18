@@ -6,8 +6,7 @@ class Motor {
     rightTicks = 0
 
     constructor(encoders, irSensors) {
-      /*
-        this.motor = require('motor-l298n')
+        this.motor = require('./motor-l298n')
 
         // in1Pin, in2Pin, enable1Pin, in3Pin, in4Pin, enable2Pin
         this.l298n = this.motor.setup(17, 27, 12, 5, 6, 13);
@@ -28,8 +27,6 @@ class Motor {
           }
 
         })
-
-        */
     }
 
     schedulePwmAdjustment = (speed) => {

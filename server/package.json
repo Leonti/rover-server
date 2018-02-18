@@ -32,7 +32,6 @@
     "wiringpi-node": "^2.4.4",
     "i2c": "0.2.3",
     "mcp3008.js": "0.4.0",
-    "motor-l298n": "0.0.1",
     "node-cmd": "3.0.0",
     "serialport": "^6.0.4",
     "split": "^1.0.1"
