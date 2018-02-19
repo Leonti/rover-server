@@ -35,11 +35,11 @@ class Motor {
         }
 
         if (this.leftTicks > this.rightTicks) {
-            this.l298n.setSpeed(this.motor.LEFT, speed * 1.2)
+            this.l298n.setSpeed(this.motor.LEFT, Math.round(speed * 1.2))
             this.l298n.setSpeed(this.motor.RIGHT, speed)
         } else if (this.leftTicks < this.rightTicks) {
             this.l298n.setSpeed(this.motor.LEFT, speed)
-            this.l298n.setSpeed(this.motor.RIGHT, speed * 1.2)
+            this.l298n.setSpeed(this.motor.RIGHT, Math.round(speed * 1.2))
         } else {
             this.l298n.setSpeed(this.motor.LEFT, speed)
             this.l298n.setSpeed(this.motor.RIGHT, speed)
