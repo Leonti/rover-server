@@ -5,6 +5,7 @@ import Motor from './service/Motor'
 import Encoders from './service/Encoders'
 import IrSensors from './service/IrSensors'
 import Arduino from './service/Arduino'
+import Accelerometer from './service/Accelerometer'
 
 class SocketServer {
 
@@ -14,6 +15,7 @@ class SocketServer {
     const irSensors = new IrSensors()
     const motor = new Motor(encoders, irSensors)
     const arduino = new Arduino()
+    const accelerometer = new Accelerometer()
 
     this.sockets = []
     const server = net.createServer(socket => {
