@@ -17,7 +17,8 @@ class Accelerometer {
     getAcceleration = () => {
       this.adxl345.getAcceleration(true) // true for g-force units, else false for m/s²
         .then((acceleration) => {
-          console.log(`acceleration = ${JSON.stringify(acceleration, null, 2)}`);
+          //console.log(`acceleration = ${JSON.stringify(acceleration, null, 2)}`);
+          this.callbacks.forEach(c => c(acceleration))
           setTimeout(this.getAcceleration, 50);
         })
         .catch((err) => {

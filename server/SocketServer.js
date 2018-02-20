@@ -39,6 +39,8 @@ class SocketServer {
 
       arduino.onButton(data => this.broadcastToSockets(s => sendButtonEventToSocket(s, data)))
 
+      accelerometer.onData(data => this.broadcastToSockets(s => sendAccelerometerEventToSocket(s, data)))
+
       socket.on('close', () => {
         console.log('socket is closed')
         this.sockets = this.sockets.filter(s => s !== socket)
@@ -104,6 +106,7 @@ const sendIrSensorEventToSocket = (socket, sensorData) => sendEvent(socket, 'IR_
 const sendBatteryEventToSocket = (socket, sensorData) => sendEvent(socket, 'BATTERY', sensorData)
 const sendTempEventToSocket = (socket, sensorData) => sendEvent(socket, 'TEMP', sensorData)
 const sendButtonEventToSocket = (socket, sensorData) => sendEvent(socket, 'BUTTON', sensorData)
+const sendAccelerometerEventToSocket = (socket, sensorData) => sendEvent(socket, 'AXL', sensorData)
 
 const sendEvent = (socket, type, data) => {
   try {
