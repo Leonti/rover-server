@@ -82,22 +82,26 @@ const off = (arduino, command) => {
 const onIncomingData = (motor, arduino) => data => {
   console.log(data)
 
-  let command = JSON.parse(data)
-  switch(command.type) {
-      case 'MOVE':
-          move(motor, command.value)
-          break
-      case 'STOP':
-          motor.stop()
-          break
-      case 'OFF':
-          arduino.off(command.value.timeout)
-          break
-      case 'CAMERA_ANGLE':
-          arduino.setAngle(command.value.angle)
-          break
-      default:
-          console.log('Unknown command')
+  try {
+    let command = JSON.parse(data)
+    switch(command.type) {
+        case 'MOVE':
+            move(motor, command.value)
+            break
+        case 'STOP':
+            motor.stop()
+            break
+        case 'OFF':
+            arduino.off(command.value.timeout)
+            break
+        case 'CAMERA_ANGLE':
+            arduino.setAngle(command.value.angle)
+            break
+        default:
+            console.log('Unknown command')
+    }
+  } catch (e) {
+    console.error('Error on incoming socket data', e)
   }
 }
 

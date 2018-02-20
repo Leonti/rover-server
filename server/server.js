@@ -22,15 +22,26 @@ const port = process.env.RESIN == 1 ? 80 : 3001
 const socketServer = process.env.RESIN == 1 ? new SocketServer() : new SocketServerMock()
 
 const client = new net.Socket()
+
 client.connect(5000, '127.0.0.1', () => {
 	console.log('Connected')
 })
+
+/*
+client.connect(5000, '192.168.0.106', () => {
+	console.log('Connected')
+})
+*/
 
 let wsConnection = undefined
 
 const stream = client.pipe(split())
 stream.on('data', data => {
-
+/*
+  if (data.type === 'AXL') {
+    console.log(data.value)
+  }
+*/
   if (wsConnection) {
     try {
         wsConnection.send(data)
