@@ -20,28 +20,35 @@ cmd.get(
 
 const port = process.env.RESIN == 1 ? 80 : 3001
 const socketServer = process.env.RESIN == 1 ? new SocketServer() : new SocketServerMock()
+const isLocal = true
 
 const client = new net.Socket()
 
-client.connect(5000, '127.0.0.1', () => {
-	console.log('Connected')
-})
+if (isLocal) {
+  client.connect(5000, '127.0.0.1', () => {
+	   console.log('Connected')
+   })
+} else {
+  client.connect(5000, '192.168.0.106', () => {
+  	console.log('Connected')
+  })
+}
 
-/*
-client.connect(5000, '192.168.0.106', () => {
-	console.log('Connected')
-})
-*/
 
 let wsConnection = undefined
 
 const stream = client.pipe(split())
 stream.on('data', data => {
-/*
-  if (data.type === 'AXL') {
-    console.log(data.value)
-  }
-*/
+
+  const parsed = JSON.parse(data)
+
+//  if (!isLocal) {
+    if (parsed.type === 'GYRO' || parsed.type === 'COMPASS') {
+      console.log(parsed)
+    }
+//  }
+
+
   if (wsConnection) {
     try {
         wsConnection.send(data)

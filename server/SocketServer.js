@@ -6,6 +6,8 @@ import Encoders from './service/Encoders'
 import IrSensors from './service/IrSensors'
 import Arduino from './service/Arduino'
 import Accelerometer from './service/Accelerometer'
+import Gyro from './service/Gyro'
+import Compass from './service/Compass'
 
 class SocketServer {
 
@@ -16,6 +18,8 @@ class SocketServer {
     const motor = new Motor(encoders, irSensors)
     const arduino = new Arduino()
     const accelerometer = new Accelerometer()
+    const gyro = new Gyro()
+    const compass = new Compass()
 
     this.sockets = []
     const server = net.createServer(socket => {
@@ -40,6 +44,10 @@ class SocketServer {
       arduino.onButton(data => this.broadcastToSockets(s => sendButtonEventToSocket(s, data)))
 
       accelerometer.onData(data => this.broadcastToSockets(s => sendAccelerometerEventToSocket(s, data)))
+
+      gyro.onData(data => this.broadcastToSockets(s => sendGyroEventToSocket(s, data)))
+
+      compass.onData(data => this.broadcastToSockets(s => sendCompassEventToSocket(s, data)))
 
       socket.on('close', () => {
         console.log('socket is closed')
@@ -111,6 +119,8 @@ const sendBatteryEventToSocket = (socket, sensorData) => sendEvent(socket, 'BATT
 const sendTempEventToSocket = (socket, sensorData) => sendEvent(socket, 'TEMP', sensorData)
 const sendButtonEventToSocket = (socket, sensorData) => sendEvent(socket, 'BUTTON', sensorData)
 const sendAccelerometerEventToSocket = (socket, sensorData) => sendEvent(socket, 'AXL', sensorData)
+const sendGyroEventToSocket = (socket, sensorData) => sendEvent(socket, 'GYRO', sensorData)
+const sendCompassEventToSocket = (socket, sensorData) => sendEvent(socket, 'COMPASS', sensorData)
 
 const sendEvent = (socket, type, data) => {
   try {
