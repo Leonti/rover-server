@@ -19,8 +19,6 @@ class Compass {
           this.callbacks.forEach(c => c(values))
           setTimeout(this.getCompass, 50);
         }
-
-        console.log(values);
       })
     }
 

@@ -19,8 +19,6 @@ class Gyro {
           this.callbacks.forEach(c => c(values))
           setTimeout(this.getGyro, 50);
         }
-
-        console.log(values);
       })
     }
 
