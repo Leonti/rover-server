@@ -1,3 +1,4 @@
+const cmd = require('node-cmd')
 const SerialPort = require("serialport");
 const Readline = SerialPort.parsers.Readline;
 
@@ -25,6 +26,13 @@ class Arduino {
 
   constructor() {
     this.parser = new Readline()
+
+    cmd.get('stty -F /dev/ttyUSB0 -hupcl', (err, data, stderr) => {
+            console.log(data)
+            console.log(err)
+            console.log(stderr)
+        })
+
     this.port = new Promise((resolve, reject) => {
       const serialPort = new SerialPort("/dev/ttyUSB0", {
         baudRate: 115200,
