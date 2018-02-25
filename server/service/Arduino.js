@@ -88,7 +88,7 @@ class Arduino {
     return this.port.then(serialPort => new Promise((resolve, reject) => {
 
       console.log(`Turning off with timeout ${timeout}`)
-      serialPort.write(`O${timeout}`, 'ascii', (err) => {
+      serialPort.write(`O${timeout};`, 'ascii', (err) => {
         if (err) {
           reject(err)
         } else {
