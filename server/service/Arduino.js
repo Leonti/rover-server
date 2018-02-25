@@ -28,7 +28,8 @@ class Arduino {
     this.port = new Promise((resolve, reject) => {
       const serialPort = new SerialPort("/dev/ttyUSB0", {
         baudRate: 115200,
-        autoOpen: false
+        autoOpen: false,
+        hupcl: false,
       })
       serialPort.pipe(this.parser)
       serialPort.open((err) => {
