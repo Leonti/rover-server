@@ -42,12 +42,11 @@ stream.on('data', data => {
 
   const parsed = JSON.parse(data)
 
-//  if (!isLocal) {
+  if (!isLocal) {
     if (parsed.type === 'GYRO' || parsed.type === 'COMPASS') {
       console.log(parsed)
     }
-//  }
-
+  }
 
   if (wsConnection) {
     try {
