@@ -31,9 +31,7 @@ class Control {
     stop = () => this.ws.send(JSON.stringify({
         type: 'STOP'
     }))
-
     setCameraAngle = angle => this.ws.send(JSON.stringify(cameraAngle(angle)))
-
     off = () => this.ws.send(JSON.stringify({
       type: 'OFF'
     }))
