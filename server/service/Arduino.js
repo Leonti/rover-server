@@ -27,26 +27,16 @@ class Arduino {
   constructor() {
     this.parser = new Readline()
 
-    cmd.get('stty -F /dev/ttyUSB0 -hupcl', (err, data, stderr) => {
-            console.log(data)
-            console.log(err)
-            console.log(stderr)
-        })
-
     this.port = new Promise((resolve, reject) => {
       const serialPort = new SerialPort("/dev/ttyUSB0", {
         baudRate: 115200,
         autoOpen: false,
-        hupcl: false,
       })
       serialPort.pipe(this.parser)
       serialPort.open((err) => {
         if (err) {
           reject(err)
         } else {
-          serialPort.set({
-            dtr: false
-          })
           serialPort.on('open', function () {
             console.log('open')
           })

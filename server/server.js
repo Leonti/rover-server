@@ -71,7 +71,7 @@ app.ws('/ws', function(ws, req) {
       client.write(JSON.stringify({
         type: 'OFF',
         value: {
-          timeout: 30
+          timeout: 10
         }
       }) + '\n')
     } else {
