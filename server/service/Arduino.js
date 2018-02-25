@@ -35,9 +35,12 @@ class Arduino {
         if (err) {
           reject(err)
         } else {
+          serialPort.set({
+            dtr: false
+          })
           serialPort.on('open', function () {
             console.log('open')
-          });
+          })
 
           this.parser.on('data', (data) => {
             //console.log(data)
