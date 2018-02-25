@@ -5,7 +5,7 @@ class Compass {
     callbacks = []
 
     constructor() {
-      this.compass = new HMC5883L(2)
+      this.compass = new HMC5883L(1)
     }
 
     getCompass = () => {

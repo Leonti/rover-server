@@ -5,7 +5,7 @@ class Gyro {
     callbacks = []
 
     constructor() {
-      this.gyro = new Gyroscope(2)
+      this.gyro = new Gyroscope(1)
     }
 
     getGyro = () => {
