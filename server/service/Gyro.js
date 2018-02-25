@@ -6,6 +6,7 @@ class Gyro {
 
     constructor() {
       this.gyro = new Gyroscope(1)
+      this.getGyro()
     }
 
     getGyro = () => {

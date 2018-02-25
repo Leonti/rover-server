@@ -6,6 +6,7 @@ class Compass {
 
     constructor() {
       this.compass = new HMC5883L(1)
+      this.getCompass()
     }
 
     getCompass = () => {
