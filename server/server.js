@@ -64,7 +64,19 @@ app.get('/api/battery', function (req, res) {
 
 app.ws('/ws', function(ws, req) {
   ws.on('message', function(msg) {
-    client.write(msg + '\n')
+
+    const parsed = JSON.parse(msg)
+
+    if (parsed.type === 'OFF' ) {
+      client.write(JSON.stringify({
+        type: 'OFF',
+        value: {
+          timeout: 60
+        }
+      }) + '\n')
+    } else {
+      client.write(msg + '\n')
+    }
   })
 })
 

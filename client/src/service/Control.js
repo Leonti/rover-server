@@ -33,6 +33,10 @@ class Control {
     }))
 
     setCameraAngle = angle => this.ws.send(JSON.stringify(cameraAngle(angle)))
+
+    off = () => this.ws.send(JSON.stringify({
+      type: 'OFF'
+    }))
 }
 
 export default Control

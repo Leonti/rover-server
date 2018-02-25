@@ -1,5 +1,6 @@
 const net = require('net')
 const split = require('split')
+const cmd = require('node-cmd')
 
 import Motor from './service/Motor'
 import Encoders from './service/Encoders'
@@ -101,6 +102,11 @@ const onIncomingData = (motor, arduino) => data => {
             break
         case 'OFF':
             arduino.off(command.value.timeout)
+            cmd.get('sudo shutdown -h now', (err, data, stderr) => {
+                    console.log(data)
+                    console.log(err)
+                    console.log(stderr)
+                })
             break
         case 'CAMERA_ANGLE':
             arduino.setAngle(command.value.angle)

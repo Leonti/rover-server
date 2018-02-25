@@ -83,6 +83,10 @@ class App extends Component {
     this.control.setCameraAngle(100 - angle)
   }
 
+  onOff() {
+    this.control.off()
+  }
+
   render() {
 
     const batteryView = this.state.battery != null ?
@@ -120,6 +124,7 @@ class App extends Component {
         <div>Left: {this.state.leftTicks}</div>
         <div>Right: {this.state.rightTicks}</div>
         <div>Room temperature: {this.state.temp ? this.state.temp.ambient : null}</div>
+        <button onClick={this.onOff.bind(this)}>OFF</button>
       </div>
     );
   }
