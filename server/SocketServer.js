@@ -32,23 +32,23 @@ class SocketServer {
       this.sockets.push(socket)
       console.log('Number of sockets', this.sockets.length)
 
-      encoders.onLeftTick(() => this.broadcastToSockets(s => sendEncoderEventToSocket(s, 'LEFT')))
+      encoders.onLeftTick(() => this.broadcastToSockets('ENCODER', 'LEFT'))
 
-      encoders.onRightTick(() => this.broadcastToSockets(s => sendEncoderEventToSocket(s, 'RIGHT')))
+      encoders.onRightTick(() => this.broadcastToSockets('ENCODER', 'RIGHT'))
 
-      irSensors.onUpdate(data => this.broadcastToSockets(s => sendIrSensorEventToSocket(s, data)))
+      irSensors.onUpdate(data => this.broadcastToSockets('IR_SENSOR', data))
 
-      arduino.onBattery(data => this.broadcastToSockets(s => sendBatteryEventToSocket(s, data)))
+      arduino.onBattery(data => this.broadcastToSockets('BATTERY', data))
 
-      arduino.onTemp(data => this.broadcastToSockets(s => sendTempEventToSocket(s, data)))
+      arduino.onTemp(data => this.broadcastToSockets('TEMP', data))
 
-      arduino.onButton(data => this.broadcastToSockets(s => sendButtonEventToSocket(s, data)))
+      arduino.onButton(data => this.broadcastToSockets('BUTTON', data))
 
-      accelerometer.onData(data => this.broadcastToSockets(s => sendAccelerometerEventToSocket(s, data)))
+      accelerometer.onData(data => this.broadcastToSockets('AXL', data))
 
-      gyro.onData(data => this.broadcastToSockets(s => sendGyroEventToSocket(s, data)))
+      gyro.onData(data => this.broadcastToSockets('GYRO', data))
 
-      compass.onData(data => this.broadcastToSockets(s => sendCompassEventToSocket(s, data)))
+      compass.onData(data => this.broadcastToSockets('COMPASS', data))
 
       socket.on('close', () => {
         console.log('socket is closed')
@@ -61,8 +61,9 @@ class SocketServer {
     server.listen(5000, '0.0.0.0')
   }
 
-  broadcastToSockets(callback) {
-    this.sockets.forEach(callback)
+  broadcastToSockets(type, data) {
+    const event = wrapWithTime(type, data)
+    this.sockets.forEach(socket => sendEvent(socket, event))
   }
 
 }
@@ -119,22 +120,18 @@ const onIncomingData = (motor, arduino) => data => {
   }
 }
 
-const sendEncoderEventToSocket = (socket, side) => sendEvent(socket, 'ENCODER', side)
-const sendIrSensorEventToSocket = (socket, sensorData) => sendEvent(socket, 'IR_SENSOR', sensorData)
-const sendBatteryEventToSocket = (socket, sensorData) => sendEvent(socket, 'BATTERY', sensorData)
-const sendTempEventToSocket = (socket, sensorData) => sendEvent(socket, 'TEMP', sensorData)
-const sendButtonEventToSocket = (socket, sensorData) => sendEvent(socket, 'BUTTON', sensorData)
-const sendAccelerometerEventToSocket = (socket, sensorData) => sendEvent(socket, 'AXL', sensorData)
-const sendGyroEventToSocket = (socket, sensorData) => sendEvent(socket, 'GYRO', sensorData)
-const sendCompassEventToSocket = (socket, sensorData) => sendEvent(socket, 'COMPASS', sensorData)
+const wrapWithTime = (type, data) => {
+  return {
+      time: new Date().getTime(),
+      type: type,
+      value: data,
+      id: Math.random()
+  }
+}
 
-const sendEvent = (socket, type, data) => {
+const sendEvent = (socket, event) => {
   try {
-      socket.write(JSON.stringify({
-          time: new Date().getTime(),
-          type: type,
-          value: data
-      }) + '\n')
+      socket.write(JSON.stringify(event) + '\n')
   } catch (e) { }
 }
 

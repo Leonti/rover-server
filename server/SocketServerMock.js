@@ -74,7 +74,8 @@ class SocketServerMock {
   }
 
   broadcastToSockets(type, data) {
-    this.sockets.forEach(socket => sendEvent(socket, type, data))
+    const event = wrapWithTime(type, data)
+    this.sockets.forEach(socket => sendEvent(socket, event))
   }
 
 }
@@ -83,13 +84,18 @@ const onIncomingData = data => {
   console.log(data)
 }
 
-const sendEvent = (socket, type, data) => {
+const wrapWithTime = (type, data) => {
+  return {
+      time: new Date().getTime(),
+      type: type,
+      value: data,
+      id: Math.random()
+  }
+}
+
+const sendEvent = (socket, event) => {
   try {
-      socket.write(JSON.stringify({
-          time: new Date().getTime(),
-          type: type,
-          value: data
-      }) + '\n')
+      socket.write(JSON.stringify(event) + '\n')
   } catch (e) { }
 }
 
