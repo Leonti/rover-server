@@ -107,6 +107,9 @@ class Motor {
     }
 
     _checkNextCommand = () => {
+      if (!this.currentCommand) {
+        return
+      }
       if (this.leftTicks >= this.currentCommand.left.ticks
         && this.rightTicks >= this.currentCommand.right.ticks) {
         this._nextCommand()
