@@ -12,7 +12,12 @@ class Motor {
 
         encoders.onLeftTick(() => {
           this.leftTicks = this.leftTicks + 1
-          if (this.currentCommand && this.leftTicks == this.currentCommand.left.ticks) {
+          console.log('left tick:')
+          console.log('right:', this.rightTicks)
+          console.log('left:', this.leftTicks)
+          console.log('current command', this.currentCommand)
+
+          if (this.currentCommand && this.leftTicks === this.currentCommand.left.ticks) {
             this.l298n.stop(this.motor.LEFT)
             this.l298n.setSpeed(this.motor.LEFT, 0)
           }
@@ -20,7 +25,12 @@ class Motor {
         })
         encoders.onRightTick(() => {
           this.rightTicks = this.rightTicks + 1
-          if (this.currentCommand && this.rightTicks == this.currentCommand.right.ticks) {
+          console.log('right tick:')
+          console.log('right:', this.rightTicks)
+          console.log('left:', this.leftTicks)
+          console.log('current command', this.currentCommand)
+
+          if (this.currentCommand && this.rightTicks === this.currentCommand.right.ticks) {
             this.l298n.stop(this.motor.RIGHT)
             this.l298n.setSpeed(this.motor.RIGHT, 0)
           }
@@ -82,23 +92,23 @@ class Motor {
         this.l298n.setSpeed(this.motor.LEFT, this.currentCommand.speed);
         this.l298n.setSpeed(this.motor.RIGHT, this.currentCommand.speed);
 
-        if(this.currentCommand.left.direction == 'FORWARD') {
+        if(this.currentCommand.left.direction === 'FORWARD') {
           this.l298n.forward(this.motor.LEFT)
-        } else if (this.currentCommand.left.direction == 'BACKWARD') {
+        } else if (this.currentCommand.left.direction === 'BACKWARD') {
           this.l298n.backward(this.motor.LEFT)
         }
 
-        if(this.currentCommand.right.direction == 'FORWARD') {
+        if(this.currentCommand.right.direction === 'FORWARD') {
           this.l298n.forward(this.motor.RIGHT)
-        } else if (this.currentCommand.right.direction == 'BACKWARD') {
+        } else if (this.currentCommand.right.direction === 'BACKWARD') {
           this.l298n.backward(this.motor.RIGHT)
         }
       }
     }
 
     _checkNextCommand = () => {
-      if (this.currentCommand.left.ticks == this.leftTicks
-        && this.currentCommand.right.ticks == this.rightTicks) {
+      if (this.leftTicks >= this.currentCommand.left.ticks
+        && this.rightTicks >= this.currentCommand.right.ticks) {
         this._nextCommand()
       }
     }
