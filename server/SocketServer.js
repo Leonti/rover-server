@@ -60,23 +60,6 @@ class SocketServer {
 
 }
 
-let move = (motor, command) => {
-    switch(command.direction) {
-        case 'FORWARD':
-            motor.forward(command.speed)
-            break
-        case 'BACK':
-            motor.back(command.speed)
-            break
-        case 'LEFT':
-            motor.left(command.speed)
-            break
-        case 'RIGHT':
-            motor.right(command.speed)
-            break
-    }
-}
-
 const off = (arduino, command) => {
   arduino.off(command.timeout)
 }
@@ -88,7 +71,7 @@ const onIncomingData = (motor, arduino) => data => {
     let command = JSON.parse(data)
     switch(command.type) {
         case 'MOVE':
-            move(motor, command.value)
+            motor.move(command.value)
             break
         case 'STOP':
             motor.stop()

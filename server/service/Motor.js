@@ -58,6 +58,7 @@ class Motor {
 */
 
     move = command => {
+      console.log('move', command)
       this.queue.push(command)
       if (!this.currentCommand) {
         this._nextCommand()
