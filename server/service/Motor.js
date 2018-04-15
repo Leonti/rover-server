@@ -12,7 +12,7 @@ class Motor {
 
         encoders.onLeftTick(() => {
           this.leftTicks = this.leftTicks + 1
-          if (this.leftTicks == this.currentCommand.left.ticks) {
+          if (this.currentCommand && this.leftTicks == this.currentCommand.left.ticks) {
             this.l298n.stop(this.motor.LEFT)
             this.l298n.setSpeed(this.motor.LEFT, 0)
           }
@@ -20,7 +20,7 @@ class Motor {
         })
         encoders.onRightTick(() => {
           this.rightTicks = this.rightTicks + 1
-          if (this.rightTicks == this.currentCommand.right.ticks) {
+          if (this.currentCommand && this.rightTicks == this.currentCommand.right.ticks) {
             this.l298n.stop(this.motor.RIGHT)
             this.l298n.setSpeed(this.motor.RIGHT, 0)
           }
