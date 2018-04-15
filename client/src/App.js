@@ -100,7 +100,7 @@ class App extends Component {
             onBack={() => this.control.back(parseInt(this.state.speed))}
             onLeft={() => this.control.left(parseInt(this.state.speed))}
             onRight={() => this.control.right(parseInt(this.state.speed))}
-            onStop={() => this.control.stop()}
+            onStop={() => /* this.control.stop() */}
         /> : <div>Connecting to rover</div>
 
     return (
