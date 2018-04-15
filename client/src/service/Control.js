@@ -3,8 +3,15 @@ const move = (speed, direction) => {
     return {
         type: 'MOVE',
         value: {
-            speed: speed,
-            direction: direction
+          left: {
+            direction: direction,
+            ticks: 10
+          },
+          right: {
+            direction: direction,
+            ticks: 10
+          },
+          speed: speed
         }
     }
 }

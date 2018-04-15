@@ -1,7 +1,6 @@
 class Motor {
-
-    hasStopped = false
-    direction = null
+    queue = []
+    currentCommand = null
     leftTicks = 0
     rightTicks = 0
 
@@ -11,9 +10,23 @@ class Motor {
         // in1Pin, in2Pin, enable1Pin, in3Pin, in4Pin, enable2Pin
         this.l298n = this.motor.setup(17, 27, 12, 5, 6, 13);
 
-        encoders.onLeftTick(() => this.leftTicks = this.leftTicks + 1)
-        encoders.onRightTick(() => this.rightTicks = this.rightTicks + 1)
-
+        encoders.onLeftTick(() => {
+          this.leftTicks = this.leftTicks + 1
+          if (this.leftTicks == this.currentCommand.left.ticks) {
+            this.l298n.stop(this.motor.LEFT)
+            this.l298n.setSpeed(this.motor.LEFT, 0)
+          }
+          this._checkNextCommand()
+        })
+        encoders.onRightTick(() => {
+          this.rightTicks = this.rightTicks + 1
+          if (this.rightTicks == this.currentCommand.right.ticks) {
+            this.l298n.stop(this.motor.RIGHT)
+            this.l298n.setSpeed(this.motor.RIGHT, 0)
+          }
+          this._checkNextCommand()
+        })
+        /*
         irSensors.onUpdate(value => {
 
           if (this.direction === 'FORWARD'
@@ -27,79 +40,66 @@ class Motor {
           }
 
         })
+        */
     }
 
-    schedulePwmAdjustment = (speed) => {
-        if (this.hasStopped) {
-            return
-        }
+/*
+{
+  left: {
+    direction: 'FORWARD',
+    ticks: 5
+  },
+  right: {
+    direction: 'BACKWARD',
+    ticks: 5
+  },
+  speed: 40
+}
+*/
 
-        if (this.leftTicks > this.rightTicks) {
-            this.l298n.setSpeed(this.motor.LEFT, Math.round(speed * 1.2))
-            this.l298n.setSpeed(this.motor.RIGHT, speed)
-        } else if (this.leftTicks < this.rightTicks) {
-            this.l298n.setSpeed(this.motor.LEFT, speed)
-            this.l298n.setSpeed(this.motor.RIGHT, Math.round(speed * 1.2))
-        } else {
-            this.l298n.setSpeed(this.motor.LEFT, speed)
-            this.l298n.setSpeed(this.motor.RIGHT, speed)
-        }
-
-        setTimeout(() => this.schedulePwmAdjustment(speed), 20)
-    }
-
-    forward = speed => {
-        this.l298n.forward(this.motor.LEFT)
-        this.l298n.forward(this.motor.RIGHT)
-
-        this.direction = 'FORWARD'
-        this.hasStopped = false
-        this.leftTicks = 0
-        this.rightTicks = 0
-
-        this.schedulePwmAdjustment(speed)
-    }
-
-    back = speed => {
-        this.l298n.backward(this.motor.LEFT)
-        this.l298n.backward(this.motor.RIGHT)
-
-        this.direction = 'BACKWARD'
-        this.hasStopped = false
-        this.leftTicks = 0
-        this.rightTicks = 0
-
-        this.schedulePwmAdjustment(speed)
-    }
-
-    left = speed => {
-        this.l298n.setSpeed(this.motor.LEFT, speed);
-        this.l298n.setSpeed(this.motor.RIGHT, speed);
-
-        this.l298n.forward(this.motor.LEFT);
-        this.l298n.backward(this.motor.RIGHT);
-
-        this.direction = null
-    }
-
-    right = speed => {
-        this.l298n.setSpeed(this.motor.LEFT, speed);
-        this.l298n.setSpeed(this.motor.RIGHT, speed);
-
-        this.l298n.backward(this.motor.LEFT);
-        this.l298n.forward(this.motor.RIGHT);
-
-        this.direction = null
+    move = command => {
+      this.queue.push(command)
+      if (!this.currentCommand) {
+        this._nextCommand()
+      }
     }
 
     stop = () => {
-        this.l298n.stop(this.motor.LEFT)
-        this.l298n.stop(this.motor.RIGHT)
+      this.queue = []
+      this.l298n.stop(this.motor.LEFT)
+      this.l298n.stop(this.motor.RIGHT)
+      this.l298n.setSpeed(this.motor.LEFT, 0)
+      this.l298n.setSpeed(this.motor.RIGHT, 0)
+    }
 
-        this.l298n.setSpeed(this.motor.LEFT, 0);
-        this.l298n.setSpeed(this.motor.RIGHT, 0);
-        this.hasStopped = true;
-        this.direction = null
+    _nextCommand = () => {
+      this.currentCommand = this.queue.shift()
+      this.leftTicks = 0
+      this.rightTicks = 0
+
+      if (this.currentCommand) {
+        this.l298n.setSpeed(this.motor.LEFT, this.currentCommand.speed);
+        this.l298n.setSpeed(this.motor.RIGHT, this.currentCommand.speed);
+
+        if(this.currentCommand.left.direction == 'FORWARD') {
+          this.l298n.forward(this.motor.LEFT)
+        } else if (this.currentCommand.left.direction == 'BACKWARD') {
+          this.l298n.backward(this.motor.LEFT)
+        }
+
+        if(this.currentCommand.right.direction == 'FORWARD') {
+          this.l298n.forward(this.motor.RIGHT)
+        } else if (this.currentCommand.right.direction == 'BACKWARD') {
+          this.l298n.backward(this.motor.RIGHT)
+        }
+      }
+    }
+
+    _checkNextCommand = () => {
+      if (this.currentCommand.left.ticks == this.leftTicks
+        && this.currentCommand.right.ticks == this.rightTicks) {
+        this._nextCommand()
+      }
     }
 
 }
