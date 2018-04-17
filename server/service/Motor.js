@@ -30,6 +30,9 @@ class Motor {
             console.log('Right is done, stopping!')
             this.l298n.stop(this.motor.RIGHT)
             this.l298n.setSpeed(this.motor.RIGHT, 0)
+
+            this.l298n.stop(this.motor.LEFT)
+            this.l298n.setSpeed(this.motor.LEFT, 0)
           }
           this._checkNextCommand()
         })
