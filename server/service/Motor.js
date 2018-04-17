@@ -128,7 +128,7 @@ class Motor {
 
     _isCurrentDone = () => {
       if (!this.current.command) {
-        return false
+        return true
       }
 
       return this._isLeftDone() && this._isRightDone()
