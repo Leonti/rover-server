@@ -81,6 +81,8 @@ class Motor {
     _nextCommand = () => {
       this._resetCurrent(this.queue.shift())
 
+      console.log('Picking up the next command', this.current)
+
       if (this.current.command) {
         this.l298n.setSpeed(this.motor.LEFT, this.current.command.speed);
         this.l298n.setSpeed(this.motor.RIGHT, this.current.command.speed);
