@@ -32,7 +32,7 @@ class Control {
     }
 
     forward = speed => this.ws.send(JSON.stringify(move(speed, 'FORWARD')))
-    back = speed => this.ws.send(JSON.stringify(move(speed, 'BACK')))
+    back = speed => this.ws.send(JSON.stringify(move(speed, 'BACKWARD')))
     left = speed => this.ws.send(JSON.stringify(move(speed, 'LEFT')))
     right = speed => this.ws.send(JSON.stringify(move(speed, 'RIGHT')))
     stop = () => this.ws.send(JSON.stringify({
