@@ -1,8 +1,10 @@
 class Motor {
     queue = []
-    currentCommand = null
-    leftTicks = 0
-    rightTicks = 0
+    current = {
+      command: null,
+      leftTicks: 0,
+      rightTicks: 0
+    }
 
     constructor(encoders, irSensors) {
         this.motor = require('./motor-l298n')
@@ -11,26 +13,19 @@ class Motor {
         this.l298n = this.motor.setup(17, 27, 12, 5, 6, 13);
 
         encoders.onLeftTick(() => {
-          this.leftTicks = this.leftTicks + 1
-          console.log('left tick:')
-          console.log('right:', this.rightTicks)
-          console.log('left:', this.leftTicks)
-          console.log('current command', this.currentCommand)
+          this.current.leftTicks = this.current.leftTicks + 1
 
-          if (this.currentCommand && this.leftTicks === this.currentCommand.left.ticks) {
+          if (this._isLeftDone()) {
             this.l298n.stop(this.motor.LEFT)
             this.l298n.setSpeed(this.motor.LEFT, 0)
           }
           this._checkNextCommand()
         })
-        encoders.onRightTick(() => {
-          this.rightTicks = this.rightTicks + 1
-          console.log('right tick:')
-          console.log('right:', this.rightTicks)
-          console.log('left:', this.leftTicks)
-          console.log('current command', this.currentCommand)
 
-          if (this.currentCommand && this.rightTicks === this.currentCommand.right.ticks) {
+        encoders.onRightTick(() => {
+          this.current.rightTicks = this.current.rightTicks + 1
+
+          if (this._isRightDone()) {
             this.l298n.stop(this.motor.RIGHT)
             this.l298n.setSpeed(this.motor.RIGHT, 0)
           }
@@ -70,9 +65,7 @@ class Motor {
     move = command => {
       console.log('move', command)
       this.queue.push(command)
-      if (!this.currentCommand) {
-        this._nextCommand()
-      }
+      this._checkNextCommand()
     }
 
     stop = () => {
@@ -84,36 +77,61 @@ class Motor {
     }
 
     _nextCommand = () => {
-      this.currentCommand = this.queue.shift()
-      this.leftTicks = 0
-      this.rightTicks = 0
+      this._resetCurrent(this.queue.shift())
 
-      if (this.currentCommand) {
-        this.l298n.setSpeed(this.motor.LEFT, this.currentCommand.speed);
-        this.l298n.setSpeed(this.motor.RIGHT, this.currentCommand.speed);
+      if (this.current.command) {
+        this.l298n.setSpeed(this.motor.LEFT, this.current.command.speed);
+        this.l298n.setSpeed(this.motor.RIGHT, this.current.command.speed);
 
-        if(this.currentCommand.left.direction === 'FORWARD') {
+        if(this.current.command.left.direction === 'FORWARD') {
           this.l298n.forward(this.motor.LEFT)
-        } else if (this.currentCommand.left.direction === 'BACKWARD') {
+        } else if (this.current.command.left.direction === 'BACKWARD') {
           this.l298n.backward(this.motor.LEFT)
         }
 
-        if(this.currentCommand.right.direction === 'FORWARD') {
+        if(this.current.command.right.direction === 'FORWARD') {
           this.l298n.forward(this.motor.RIGHT)
-        } else if (this.currentCommand.right.direction === 'BACKWARD') {
+        } else if (this.current.command.right.direction === 'BACKWARD') {
           this.l298n.backward(this.motor.RIGHT)
         }
       }
     }
 
     _checkNextCommand = () => {
-      if (!this.currentCommand) {
-        return
-      }
-      if (this.leftTicks >= this.currentCommand.left.ticks
-        && this.rightTicks >= this.currentCommand.right.ticks) {
+      console.log('Checking next command', this.current)
+      if (this._isCurrentDone()) {
         this._nextCommand()
       }
+    }
+
+    _resetCurrent = (nextCommand) => {
+      this.current.command = nextCommand
+      this.current.leftTicks = 0
+      this.current.rightTicks = 0
+    }
+
+    _isLeftDone = () => {
+      if (!this.current.command) {
+        return true
+      }
+
+      return this.current.leftTicks >= this.current.command.left.ticks
+    }
+
+    _isRightDone = () => {
+      if (!this.current.command) {
+        return true
+      }
+
+      return this.current.rightTicks >= this.current.command.right.ticks
+    }
+
+    _isCurrentDone = () => {
+      if (!this.current.command) {
+        return false
+      }
+
+      return this._isLeftDone() && this._isRightDone()
     }
 
 }
