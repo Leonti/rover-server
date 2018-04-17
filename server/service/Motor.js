@@ -16,6 +16,7 @@ class Motor {
           this.current.leftTicks = this.current.leftTicks + 1
 
           if (this._isLeftDone()) {
+            console.log('Left is done, stopping!')
             this.l298n.stop(this.motor.LEFT)
             this.l298n.setSpeed(this.motor.LEFT, 0)
           }
@@ -26,6 +27,7 @@ class Motor {
           this.current.rightTicks = this.current.rightTicks + 1
 
           if (this._isRightDone()) {
+            console.log('Right is done, stopping!')
             this.l298n.stop(this.motor.RIGHT)
             this.l298n.setSpeed(this.motor.RIGHT, 0)
           }
