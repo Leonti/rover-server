@@ -5,11 +5,11 @@ const move = (speed, direction) => {
         value: {
           left: {
             direction: direction,
-            ticks: 50
+            ticks: 100
           },
           right: {
             direction: direction,
-            ticks: 50
+            ticks: 100
           },
           speed: speed
         }
