@@ -10,7 +10,7 @@ class Motor {
         this.motor = require('./motor-l298n')
 
         // in1Pin, in2Pin, enable1Pin, in3Pin, in4Pin, enable2Pin
-        this.l298n = this.motor.setup(5, 6, 13, 17, 27, 12);
+        this.l298n = this.motor.setup(6, 5, 13, 27, 17, 12);
 
         encoders.onLeftTick(() => {
           this.current.leftTicks = this.current.leftTicks + 1
