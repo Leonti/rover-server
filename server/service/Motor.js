@@ -1,54 +1,67 @@
 class Motor {
-    queue = []
-    current = {
-      command: null,
-      leftTicks: 0,
-      rightTicks: 0
-    }
 
-    constructor(encoders, irSensors) {
-        this.motor = require('./motor-l298n')
+  leftTicks = 0
+  rightTicks = 0
+  prevErrorLeft = 0
+  prevErrorRight = 0
+  sumErrorLeft = 0
+  sumErrorRight = 0
 
-        // in1Pin, in2Pin, enable1Pin, in3Pin, in4Pin, enable2Pin
-        this.l298n = this.motor.setup(6, 5, 13, 27, 17, 12);
+  leftSpeed = 50
+  rightSpeed = 50
+  isMoving = false
 
-        encoders.onLeftTick(() => {
-          this.current.leftTicks = this.current.leftTicks + 1
+  target = 20
+  kp = 0.02
+  kd = 0.01
+  ki = 0.005
 
-          if (this._isLeftDone()) {
-            console.log('Left is done, stopping!')
-            this.l298n.stop(this.motor.LEFT)
-            this.l298n.setSpeed(this.motor.LEFT, 0)
-          }
-          this._checkNextCommand()
-        })
+  constructor(encoders, irSensors) {
+      this.motor = require('./motor-l298n')
 
-        encoders.onRightTick(() => {
-          this.current.rightTicks = this.current.rightTicks + 1
+      // in1Pin, in2Pin, enable1Pin, in3Pin, in4Pin, enable2Pin
+      this.l298n = this.motor.setup(6, 5, 13, 27, 17, 12);
 
-          if (this._isRightDone()) {
-            console.log('Right is done, stopping!')
-            this.l298n.stop(this.motor.RIGHT)
-            this.l298n.setSpeed(this.motor.RIGHT, 0)
-          }
-          this._checkNextCommand()
-        })
-        /*
-        irSensors.onUpdate(value => {
+      encoders.onLeftTick(() => {
+        this.leftTicks += 1
+      })
 
-          if (this.direction === 'FORWARD'
-            && (value.front.left === true || value.front.right === true)) {
-            this.stop()
-          }
+      encoders.onRightTick(() => {
+        this.rightTicks += 1
+      })
+/*
+      setInterval(() => {
+        if (!this.isMoving) return
 
-          if (this.direction === 'BACKWARD'
-            && (value.rear.left === true || value.rear.right === true)) {
-            this.stop()
-          }
+        const leftError = this.target - this.leftTicks
+        const rightError = this.target - this.rightTicks
 
-        })
-        */
-    }
+        const leftAdjustment = 10 * (leftError * this.kp + (leftError - this.prevErrorLeft) * this.kd + this.sumErrorLeft * this.ki)
+        const rightAdjustment = 10 * (rightError * this.kp + (rightError - this.prevErrorRight) * this.kd + this.sumErrorRight * this.ki)
+
+        this.leftSpeed += leftAdjustment
+        this.rightSpeed += rightAdjustment
+
+        this.leftSpeed = Math.max(Math.min(100, Math.round(this.leftSpeed)), 40)
+        this.rightSpeed = Math.max(Math.min(100, Math.round(this.rightSpeed)), 40)
+
+        console.log(`left speed: ${this.leftSpeed} right speed : ${this.rightSpeed}`)
+        console.log(`left ticks: ${this.leftTicks} right ticks: ${this.rightTicks}`)
+        console.log(`left adj: ${leftAdjustment} right adj: ${rightAdjustment}`)
+
+        this.l298n.setSpeed(this.motor.LEFT, this.leftSpeed)
+        this.l298n.setSpeed(this.motor.RIGHT, this.rightSpeed)
+
+        this.prevErrorLeft = leftError
+        this.prevErrorRight = rightError
+        this.sumErrorLeft += leftError
+        this.sumErrorRight += rightError
+
+        this.leftTicks = 0
+        this.rightTicks = 0
+      }, 100)
+*/
+  }
 
 /*
 {
@@ -64,78 +77,42 @@ class Motor {
 }
 */
 
+    start(velocity) {
+      this.isMoving = true
+      this.leftTicks = 0
+      this.rightTicks = 0
+      this.prevErrorLeft = 0
+      this.prevErrorRight = 0
+      this.sumErrorLeft = 0
+      this.sumErrorRight = 0
+
+      this.leftSpeed = 40
+      this.rightSpeed = 40
+
+//      this.l298n.setSpeed(this.motor.LEFT, this.leftSpeed)
+//      this.l298n.setSpeed(this.motor.RIGHT, this.rightSpeed)
+
+      this.l298n.setSpeed(this.motor.LEFT, velocity)
+      this.l298n.setSpeed(this.motor.RIGHT, velocity)
+      this.l298n.forward(this.motor.LEFT)
+      this.l298n.forward(this.motor.RIGHT)
+    }
+
     move = command => {
       console.log('move', command)
-      this.queue.push(command)
-      this._checkNextCommand()
+      this.start(command.speed)
+      setTimeout(() => {
+        this.stop()
+      }, 5000)
     }
 
     stop = () => {
-      this.queue = []
+      this.isMoving = false
+      console.log('motoro stopped')
       this.l298n.stop(this.motor.LEFT)
       this.l298n.stop(this.motor.RIGHT)
       this.l298n.setSpeed(this.motor.LEFT, 0)
       this.l298n.setSpeed(this.motor.RIGHT, 0)
-    }
-
-    _nextCommand = () => {
-      this._resetCurrent(this.queue.shift())
-
-      console.log('Picking up the next command', this.current)
-
-      if (this.current.command) {
-        this.l298n.setSpeed(this.motor.LEFT, this.current.command.speed);
-        this.l298n.setSpeed(this.motor.RIGHT, this.current.command.speed);
-
-        if(this.current.command.left.direction === 'FORWARD') {
-          this.l298n.forward(this.motor.LEFT)
-        } else if (this.current.command.left.direction === 'BACKWARD') {
-          this.l298n.backward(this.motor.LEFT)
-        }
-
-        if(this.current.command.right.direction === 'FORWARD') {
-          this.l298n.forward(this.motor.RIGHT)
-        } else if (this.current.command.right.direction === 'BACKWARD') {
-          this.l298n.backward(this.motor.RIGHT)
-        }
-      }
-    }
-
-    _checkNextCommand = () => {
-      console.log('Checking next command', this.current)
-      if (this._isCurrentDone()) {
-        this._nextCommand()
-      }
-    }
-
-    _resetCurrent = (nextCommand) => {
-      this.current.command = nextCommand
-      this.current.leftTicks = 0
-      this.current.rightTicks = 0
-    }
-
-    _isLeftDone = () => {
-      if (!this.current.command) {
-        return true
-      }
-
-      return this.current.leftTicks >= this.current.command.left.ticks
-    }
-
-    _isRightDone = () => {
-      if (!this.current.command) {
-        return true
-      }
-
-      return this.current.rightTicks >= this.current.command.right.ticks
-    }
-
-    _isCurrentDone = () => {
-      if (!this.current.command) {
-        return true
-      }
-
-      return this._isLeftDone() && this._isRightDone()
     }
 
 }
