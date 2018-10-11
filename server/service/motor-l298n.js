@@ -47,8 +47,8 @@ exports.setup = function(in1Pin, in2Pin, enable1Pin, in3Pin, in4Pin, enable2Pin)
   }
 
   pwm = makePwm({
-    freq: '60',
-    address: '0x40',
+    freq: 60,
+    address: 0x40,
     device: '/dev/i2c-1'
   })
 
