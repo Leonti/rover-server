@@ -1,22 +1,8 @@
-/**
- * motor-l298n
- *
- * Control an L298N dual H-Bridge DC motor controller.  The exposed functions are:
- *
- * setup()
- * forward(side)
- * backward(side)
- * stop(side)
- * setSpeed(side, speed)
- *
- * Neil Kolban <kolban1@kolban.com>
- * 2016-04-29
- */
-
-
 const wpi = require('wiringpi-node');
+const makePwm = require('adafruit-pca9685');
 
 wpi.setup('gpio');
+let pwm = null;
 
 // Create definitions for the constants.
 var FORWARD  = 1;
@@ -34,6 +20,7 @@ exports.RIGHT    = RIGHT;
 // A global used to identify L298N for debugging purposes.  The first L298N created
 // will have index 1, the next will have index 2 and so on.
 var l298nIndex=1;
+const dutyCycle = 4095;
 
 /**
  * Setup the object for usage.
@@ -59,15 +46,15 @@ exports.setup = function(in1Pin, in2Pin, enable1Pin, in3Pin, in4Pin, enable2Pin)
     _speedRight: 0
   }
 
-  // Set the direction of the pins used to drive the L298N.
+  pwm = makePwm({
+    freq: '60',
+    address: '0x40',
+    device: '/dev/i2c-1'
+  })
 
-  wpi.pinMode(enable1Pin, wpi.PWM_OUTPUT);
-  wpi.pinMode(enable2Pin, wpi.PWM_OUTPUT);
-  wpi.pwmSetMode(wpi.PWM_MODE_MS);
-  wpi.pwmSetClock(1920);
-  wpi.pwmSetRange(100);
-  wpi.pwmWrite(enable1Pin, 0);
-  wpi.pwmWrite(enable2Pin, 0);
+  // Set the direction of the pins used to drive the L298N.
+  pwm.setPwm(0, 0, 0);
+  pwm.setPwm(1, 0, 0);
   wpi.pinMode(in1Pin, wpi.OUTPUT);
   wpi.pinMode(in2Pin, wpi.OUTPUT);
   wpi.pinMode(in3Pin, wpi.OUTPUT);
@@ -97,10 +84,10 @@ function setSpeed(side, speed)
 {
   if (side == LEFT) {
     this._speedLeft = speed;
-    wpi.pwmWrite(this._enable1Pin, speed);
+    pwm.setPwm(0, 0, Math.round(dutyCycle * speed / 100));
   } else if (side == RIGHT) {
     this._speedRight = speed;
-    wpi.pwmWrite(this._enable2Pin, speed);
+    pwm.setPwm(1, 0, Math.round(dutyCycle * speed / 100));
   }
 } // End of setSpeed
 
