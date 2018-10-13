@@ -47,7 +47,7 @@ exports.setup = function(in1Pin, in2Pin, enable1Pin, in3Pin, in4Pin, enable2Pin)
   }
 
   pwm = makePwm({
-    freq: 60,
+    freq: 100,
     address: 0x40,
     device: '/dev/i2c-1'
   })
@@ -80,14 +80,16 @@ exports.setup = function(in1Pin, in2Pin, enable1Pin, in3Pin, in4Pin, enable2Pin)
  * Sets the speed of a side as a percentage of maximum.
  * @param side Either LEFT or RIGHT.
  */
-function setSpeed(side, speed)
-{
+function setSpeed(side, speed) {
+
+  const scaled = speed/100 * 82 + 18
+
   if (side == LEFT) {
     this._speedLeft = speed;
-    pwm.setPwm(0, 0, Math.round(dutyCycle * speed / 100));
+    pwm.setPwm(0, 0, Math.round(dutyCycle * scaled / 100));
   } else if (side == RIGHT) {
     this._speedRight = speed;
-    pwm.setPwm(1, 0, Math.round(dutyCycle * speed / 100));
+    pwm.setPwm(1, 0, Math.round(dutyCycle * scaled / 100));
   }
 } // End of setSpeed
 

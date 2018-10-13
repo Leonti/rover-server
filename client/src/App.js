@@ -12,13 +12,18 @@ class App extends Component {
   state = {
       battery: null,
       temp: null,
-      speed: "30",
+      motorStats: null,
+      speed: '10',
       cameraAngle: 50,
       wsConnected: false,
       wsError: false,
       leftTicks: 0,
       rightTicks: 0,
       ir: null,
+      p: '0',
+      i: '0',
+      d: '0',
+      ticksToGo: '2000',
   }
 
   control = null
@@ -43,6 +48,12 @@ class App extends Component {
     this.setState({ temp: value })
   }
 
+  onMotorStats(value) {
+    this.setState({ motorStats: value })
+//    console.log(value)
+//    console.log(JSON.stringify(value))
+  }
+
   processMessage(msg) {
       switch(msg.type) {
           case 'ENCODER':
@@ -56,6 +67,17 @@ class App extends Component {
             break
           case 'TEMP':
             this.onTemp(msg.value)
+            break
+          case 'MOTOR_STATS':
+            this.onMotorStats(msg.value)
+            break
+          case 'COMPASS':
+            break
+          case 'GYRO':
+            break
+          case 'AXL':
+            break
+          case 'BUTTON':
             break
           default:
             console.log('Unknown server message', msg)
@@ -77,6 +99,22 @@ class App extends Component {
       this.setState({speed: event.target.value})
   }
 
+  onPChange(event) {
+      this.setState({p: event.target.value})
+  }
+
+  onIChange(event) {
+      this.setState({i: event.target.value})
+  }
+
+  onDChange(event) {
+      this.setState({d: event.target.value})
+  }
+
+  onTicksToGoChange(event) {
+    this.setState({ticksToGo: event.target.value})
+  }
+
   onAngleChange(event) {
     const angle = event.target.value
     this.setState({cameraAngle: angle})
@@ -85,6 +123,14 @@ class App extends Component {
 
   onOff() {
     this.control.off()
+  }
+
+  getPid() {
+    return {
+      p: parseFloat(this.state.p),
+      i: parseFloat(this.state.i),
+      d: parseFloat(this.state.d),
+    }
   }
 
   render() {
@@ -96,10 +142,10 @@ class App extends Component {
         /> : null
     const navigationView = this.state.wsConnected ?
         <Navigation
-            onForward={() => this.control.forward(parseInt(this.state.speed))}
-            onBack={() => this.control.back(parseInt(this.state.speed))}
-            onLeft={() => this.control.left(parseInt(this.state.speed))}
-            onRight={() => this.control.right(parseInt(this.state.speed))}
+            onForward={() => this.control.forward(parseInt(this.state.speed), this.getPid(), parseInt(this.state.ticksToGo))}
+            onBack={() => this.control.back(parseInt(this.state.speed), this.getPid(), parseInt(this.state.ticksToGo))}
+            onLeft={() => this.control.left(parseInt(this.state.speed), this.getPid())}
+            onRight={() => this.control.right(parseInt(this.state.speed), this.getPid())}
             onStop={() => 1}
         /> : <div>Connecting to rover</div>
 
@@ -121,6 +167,10 @@ class App extends Component {
           <input type="range" min="0" max="100" value={this.state.cameraAngle} onChange={this.onAngleChange.bind(this)} step="1" />
         </div>
         <div>Speed: <input type="range" min="0" max="100" value={this.state.speed} onChange={this.onSpeedChange.bind(this)} /></div>
+        <div>P: <input type="text" value={this.state.p} onChange={this.onPChange.bind(this)} /></div>
+        <div>I: <input type="text" value={this.state.i} onChange={this.onIChange.bind(this)} /></div>
+        <div>D: <input type="text" value={this.state.d} onChange={this.onDChange.bind(this)} /></div>
+        <div>Ticks to go: <input type="text" value={this.state.ticksToGo} onChange={this.onTicksToGoChange.bind(this)} /></div>
         <div>Left: {this.state.leftTicks}</div>
         <div>Right: {this.state.rightTicks}</div>
         <div>Room temperature: {this.state.temp ? this.state.temp.ambient : null}</div>

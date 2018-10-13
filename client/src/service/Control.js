@@ -1,5 +1,5 @@
 
-const move = (speed, direction) => {
+const move = (speed, pid, ticksToGo, direction) => {
     return {
         type: 'MOVE',
         value: {
@@ -11,7 +11,9 @@ const move = (speed, direction) => {
             direction: direction,
             ticks: 100
           },
-          speed: speed
+          speed: speed,
+          pid: pid,
+          ticksToGo: ticksToGo
         }
     }
 }
@@ -31,10 +33,10 @@ class Control {
         this.ws = ws
     }
 
-    forward = speed => this.ws.send(JSON.stringify(move(speed, 'FORWARD')))
-    back = speed => this.ws.send(JSON.stringify(move(speed, 'BACKWARD')))
-    left = speed => this.ws.send(JSON.stringify(move(speed, 'LEFT')))
-    right = speed => this.ws.send(JSON.stringify(move(speed, 'RIGHT')))
+    forward = (speed, pid, ticksToGo) => this.ws.send(JSON.stringify(move(speed, pid, ticksToGo, 'FORWARD')))
+    back = (speed, pid, ticksToGo) => this.ws.send(JSON.stringify(move(speed, pid, ticksToGo, 'BACKWARD')))
+    left = (speed, pid, ticksToGo) => this.ws.send(JSON.stringify(move(speed, pid, ticksToGo, 'LEFT')))
+    right = (speed, pid, ticksToGo) => this.ws.send(JSON.stringify(move(speed, pid, ticksToGo, 'RIGHT')))
     stop = () => this.ws.send(JSON.stringify({
         type: 'STOP'
     }))

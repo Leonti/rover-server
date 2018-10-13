@@ -1,6 +1,9 @@
 const net = require('net')
 const split = require('split')
 
+var fs = require('fs');
+var stats = JSON.parse(fs.readFileSync('stats_example.json', 'utf8'));
+
 class SocketServerMock {
 
   constructor() {
@@ -71,6 +74,10 @@ class SocketServerMock {
       this.broadcastToSockets('ENCODER', 'LEFT')
       this.broadcastToSockets('ENCODER', 'RIGHT')
     }, 100)
+
+    setInterval(() => {
+      this.broadcastToSockets('MOTOR_STATS', stats)
+    }, 5000)
   }
 
   broadcastToSockets(type, data) {

@@ -1,3 +1,7 @@
+const formatStats = stats => stats.entries
+.reduce((acc, e) => acc + `${e.time},${stats.target},${e.left.ticks},${e.left.error},${e.left.speed},${e.left.sumError},${e.right.ticks},${e.right.error},${e.right.speed},${e.right.sumError},${stats.pid.p},${stats.pid.i},${stats.pid.d}\n`,
+  'Timestamp,Target,LeftTicks,LeftError,LeftSpeed,LeftSumError,RightTicks,RightError,RightSpeed,RightSumError,Kp,Ki,Kd\n')
+
 class Motor {
 
   leftTicks = 0
@@ -7,14 +11,25 @@ class Motor {
   sumErrorLeft = 0
   sumErrorRight = 0
 
-  leftSpeed = 50
-  rightSpeed = 50
+  leftSpeed = 0
+  rightSpeed = 0
+  ticksToGo = 0
+  totalLeftTicks = 0
+  totalRightTicks = 0
   isMoving = false
 
   target = 20
-  kp = 0.02
-  kd = 0.01
-  ki = 0.005
+  kp = 0
+  kd = 0
+  ki = 0
+
+  pidIntervalId = null
+
+  stats = null
+
+  callbacks = []
+
+  onStats = onStats => this.callbacks.push(onStats)
 
   constructor(encoders, irSensors) {
       this.motor = require('./motor-l298n')
@@ -24,43 +39,68 @@ class Motor {
 
       encoders.onLeftTick(() => {
         this.leftTicks += 1
+        this.totalLeftTicks += 1
       })
 
       encoders.onRightTick(() => {
         this.rightTicks += 1
+        this.totalRightTicks += 1
       })
-/*
-      setInterval(() => {
-        if (!this.isMoving) return
+  }
 
-        const leftError = this.target - this.leftTicks
-        const rightError = this.target - this.rightTicks
+  startPid() {
+    this.pidIntervalId = setInterval(() => {
+//      console.log(`PID iteration Kp: ${this.kp}, Ki: ${this.ki}, Kd: ${this.kd}`)
+      if (!this.isMoving) return
 
-        const leftAdjustment = 10 * (leftError * this.kp + (leftError - this.prevErrorLeft) * this.kd + this.sumErrorLeft * this.ki)
-        const rightAdjustment = 10 * (rightError * this.kp + (rightError - this.prevErrorRight) * this.kd + this.sumErrorRight * this.ki)
+      const leftError = this.target - this.leftTicks
+      const rightError = this.target - this.rightTicks
 
-        this.leftSpeed += leftAdjustment
-        this.rightSpeed += rightAdjustment
+      const leftAdjustment = leftError * this.kp + (leftError - this.prevErrorLeft) * this.kd + this.sumErrorLeft * this.ki
+      const rightAdjustment = rightError * this.kp + (rightError - this.prevErrorRight) * this.kd + this.sumErrorRight * this.ki
 
-        this.leftSpeed = Math.max(Math.min(100, Math.round(this.leftSpeed)), 40)
-        this.rightSpeed = Math.max(Math.min(100, Math.round(this.rightSpeed)), 40)
+      this.leftSpeed += leftAdjustment
+      this.rightSpeed += rightAdjustment
 
-        console.log(`left speed: ${this.leftSpeed} right speed : ${this.rightSpeed}`)
-        console.log(`left ticks: ${this.leftTicks} right ticks: ${this.rightTicks}`)
-        console.log(`left adj: ${leftAdjustment} right adj: ${rightAdjustment}`)
+      this.leftSpeed = Math.max(Math.min(100, this.leftSpeed), 0)
+      this.rightSpeed = Math.max(Math.min(100, this.rightSpeed), 0)
 
-        this.l298n.setSpeed(this.motor.LEFT, this.leftSpeed)
-        this.l298n.setSpeed(this.motor.RIGHT, this.rightSpeed)
+//      console.log(`left speed: ${this.leftSpeed} right speed : ${this.rightSpeed}`)
+//      console.log(`left ticks: ${this.leftTicks} right ticks: ${this.rightTicks}`)
+//      console.log(`left adj: ${leftAdjustment} right adj: ${rightAdjustment}`)
 
-        this.prevErrorLeft = leftError
-        this.prevErrorRight = rightError
-        this.sumErrorLeft += leftError
-        this.sumErrorRight += rightError
+      this.l298n.setSpeed(this.motor.LEFT, this.leftSpeed)
+      this.l298n.setSpeed(this.motor.RIGHT, this.rightSpeed)
 
-        this.leftTicks = 0
-        this.rightTicks = 0
-      }, 100)
-*/
+      this.prevErrorLeft = leftError
+      this.prevErrorRight = rightError
+      this.sumErrorLeft += leftError
+      this.sumErrorRight += rightError
+
+      this.stats.entries.push({
+        left: {
+          ticks: this.leftTicks,
+          error: leftError,
+          speed: this.leftSpeed,
+          sumError: this.sumErrorLeft,
+        },
+        right: {
+          ticks: this.rightTicks,
+          error: rightError,
+          speed: this.rightSpeed,
+          sumError: this.sumErrorRight,
+        },
+        time: new Date().getTime()
+      })
+
+      this.leftTicks = 0
+      this.rightTicks = 0
+
+      if (this.totalLeftTicks >= this.ticksToGo || this.totalRightTicks >= this.ticksToGo) {
+        this.stop()
+      }
+
+    }, 100)
   }
 
 /*
@@ -77,7 +117,7 @@ class Motor {
 }
 */
 
-    start(velocity) {
+    start(velocity, pid, ticksToGo) {
       this.isMoving = true
       this.leftTicks = 0
       this.rightTicks = 0
@@ -86,28 +126,44 @@ class Motor {
       this.sumErrorLeft = 0
       this.sumErrorRight = 0
 
-      this.leftSpeed = 40
-      this.rightSpeed = 40
+      this.kp = pid.p
+      this.ki = pid.i
+      this.kd = pid.d
 
-//      this.l298n.setSpeed(this.motor.LEFT, this.leftSpeed)
-//      this.l298n.setSpeed(this.motor.RIGHT, this.rightSpeed)
+      this.leftSpeed = velocity
+      this.rightSpeed = velocity
 
-      this.l298n.setSpeed(this.motor.LEFT, velocity)
-      this.l298n.setSpeed(this.motor.RIGHT, velocity)
+      this.l298n.setSpeed(this.motor.LEFT, this.leftSpeed)
+      this.l298n.setSpeed(this.motor.RIGHT, this.rightSpeed)
+
+      this.ticksToGo = ticksToGo
+      this.totalLeftTicks = 0
+      this.totalRightTicks = 0
+
+      this.stats = {
+        pid: pid,
+        target: this.target,
+        entries: []
+      }
+
+      this.startPid()
+
+    //  this.l298n.setSpeed(this.motor.LEFT, velocity)
+    //  this.l298n.setSpeed(this.motor.RIGHT, velocity)
       this.l298n.forward(this.motor.LEFT)
       this.l298n.forward(this.motor.RIGHT)
     }
 
     move = command => {
       console.log('move', command)
-      this.start(command.speed)
-      setTimeout(() => {
-        this.stop()
-      }, 5000)
+      this.start(command.speed, command.pid, command.ticksToGo)
     }
 
     stop = () => {
       this.isMoving = false
+      clearInterval(this.pidIntervalId);
+//      console.log(formatStats(this.stats))
+      this.callbacks.forEach(c => c(this.stats))
       console.log('motoro stopped')
       this.l298n.stop(this.motor.LEFT)
       this.l298n.stop(this.motor.RIGHT)

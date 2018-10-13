@@ -49,6 +49,7 @@ class SocketServer {
     accelerometer.onData(data => this.broadcastToSockets('AXL', data))
     gyro.onData(data => this.broadcastToSockets('GYRO', data))
     compass.onData(data => this.broadcastToSockets('COMPASS', data))
+    motor.onStats(data => this.broadcastToSockets('MOTOR_STATS', data))
 
     server.listen(5000, '0.0.0.0')
   }
