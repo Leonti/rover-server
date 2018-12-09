@@ -166,7 +166,7 @@ class App extends Component {
             onLeft={() => this.control.left(parseInt(this.state.speed), this.getPid())}
             onRight={() => this.control.right(parseInt(this.state.speed), this.getPid())}
             onStop={() => 1}
-        /> : <div>Connecting to rover</div>
+        /> : <div className="connecting">Connecting to rover</div>
 
     return (
       <div className="App">
@@ -194,10 +194,10 @@ class App extends Component {
         <div>Right: {this.state.rightTicks}</div>
         <div>Room temperature: {this.state.temp ? this.state.temp.room : null}</div>
         <button onClick={this.onOff.bind(this)}>OFF</button>
-        <MotorStats {...this.state.motorStats} />
       </div>
     );
   }
 }
 
+//         <MotorStats {...this.state.motorStats} />
 export default App;

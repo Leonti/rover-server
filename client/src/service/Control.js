@@ -1,21 +1,18 @@
 
 const move = (speed, pid, ticksToGo, direction) => {
     return {
-        type: 'MOVE',
-        value: {
-          left: {
-            direction: direction,
-            ticks: 100
-          },
-          right: {
-            direction: direction,
-            ticks: 100
-          },
-          speed: speed,
-          pid: pid,
-          ticksToGo: ticksToGo
+        motor: {
+            command: {
+                move: {
+                    speed,
+                    ticks: ticksToGo,
+                    p: pid.p,
+                    i: pid.i,
+                    d: pid.d,
+                }
+            }
         }
-    }
+    };
 }
 
 const cameraAngle = (angle) => {
