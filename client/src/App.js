@@ -5,6 +5,7 @@ import Battery from './components/Battery'
 import Navigation from './components/Navigation'
 import CameraView from './components/CameraView'
 import Rover from './components/Rover'
+import MotorStats from './components/MotorStats'
 
 import Control from './service/Control'
 
@@ -40,14 +41,6 @@ class App extends Component {
       this.setState({ ir: value })
   }
 
-  onBattery(value) {
-    this.setState({ battery: value })
-  }
-
-  onTemp(value) {
-    this.setState({ temp: value })
-  }
-
   onMotorStats(value) {
     this.setState({ motorStats: value })
 //    console.log(value)
@@ -55,6 +48,25 @@ class App extends Component {
   }
 
   processMessage(msg) {
+    if (msg.hasOwnProperty('arduino')) {
+      if (msg.arduino.event.hasOwnProperty('power')) {
+        console.log(msg.arduino.event.power)
+        this.setState({ 
+          battery: {
+            voltage: msg.arduino.event.power.load_voltage,
+            currentMa: msg.arduino.event.power.current_ma,
+          }
+         })
+      } else if (msg.arduino.event.hasOwnProperty('temp')) {
+        this.setState({
+          temp: {
+            battery: msg.arduino.event.temp.battery,
+            room: msg.arduino.event.temp.room,
+          }
+        })
+      }
+    }
+
       switch(msg.type) {
           case 'ENCODER':
             this.onEncoder(msg.value)
@@ -80,19 +92,26 @@ class App extends Component {
           case 'BUTTON':
             break
           default:
-            console.log('Unknown server message', msg)
+       //     console.log('Unknown server message', msg)
       }
   }
 
   componentDidMount() {
-    let server = new WebSocket(`ws://${window.location.host}/ws`)
+//    let server = new WebSocket(`ws://${window.location.host}/ws`)
+    let server = new WebSocket(`ws://192.168.0.109:5001`)
     server.onopen = () => {
         this.setState({wsConnected: true})
         this.control = new Control(server)
 
         server.onmessage = msg => this.processMessage(JSON.parse(msg.data))
     }
-    server.onerror = err => this.setState({wsError: true})
+    server.onerror = err => {
+      console.log('Websocket error')
+      this.setState({wsError: true})
+    }
+    server.onclose = () => {
+      console.log('closed websockets')
+    }     
   }
 
   onSpeedChange(event) {
@@ -173,8 +192,9 @@ class App extends Component {
         <div>Ticks to go: <input type="text" value={this.state.ticksToGo} onChange={this.onTicksToGoChange.bind(this)} /></div>
         <div>Left: {this.state.leftTicks}</div>
         <div>Right: {this.state.rightTicks}</div>
-        <div>Room temperature: {this.state.temp ? this.state.temp.ambient : null}</div>
+        <div>Room temperature: {this.state.temp ? this.state.temp.room : null}</div>
         <button onClick={this.onOff.bind(this)}>OFF</button>
+        <MotorStats {...this.state.motorStats} />
       </div>
     );
   }

@@ -85,10 +85,8 @@ function setSpeed(side, speed) {
   const scaled = speed/100 * 82 + 18
 
   if (side == LEFT) {
-    this._speedLeft = speed;
     pwm.setPwm(0, 0, Math.round(dutyCycle * scaled / 100));
   } else if (side == RIGHT) {
-    this._speedRight = speed;
     pwm.setPwm(1, 0, Math.round(dutyCycle * scaled / 100));
   }
 } // End of setSpeed

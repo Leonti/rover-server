@@ -19,7 +19,7 @@ cmd.get(
 );
 
 const port = process.env.RESIN == 1 ? 80 : 3001
-const socketServer = process.env.RESIN == 1 ? new SocketServer() : new SocketServerMock()
+//const socketServer = process.env.RESIN == 1 ? new SocketServer() : new SocketServerMock()
 const isLocal = true
 
 const client = new net.Socket()
@@ -40,6 +40,7 @@ let wsConnection = undefined
 const stream = client.pipe(split())
 stream.on('data', data => {
 
+  console.log(data);
   const parsed = JSON.parse(data)
 
   if (!isLocal) {

@@ -4,3 +4,6 @@ destination: /usr/src/app
 ignore:
   - .git
   - node_modules/
+  - client/node_modules/
+  - client/public
+  - client/src

@@ -18,12 +18,13 @@ class Motor {
   totalRightTicks = 0
   isMoving = false
 
-  target = 20
-  kp = 0
-  kd = 0
-  ki = 0
+  target = 0
+  kp = 0 // 4
+  kd = 0 // 0.05
+  ki = 0 // 0.2
 
   pidIntervalId = null
+  rampUpIntervalId = null
 
   stats = null
 
@@ -31,7 +32,7 @@ class Motor {
 
   onStats = onStats => this.callbacks.push(onStats)
 
-  constructor(encoders, irSensors) {
+  constructor(encoders) {
       this.motor = require('./motor-l298n')
 
       // in1Pin, in2Pin, enable1Pin, in3Pin, in4Pin, enable2Pin
@@ -46,6 +47,17 @@ class Motor {
         this.rightTicks += 1
         this.totalRightTicks += 1
       })
+  }
+
+  startRampUp(desired) {
+    this.rampUpIntervalId = setInterval(() => {
+      if (this.target >= 10) {
+        clearInterval(this.rampUpIntervalId);
+        return;
+      }
+
+      this.target += 1
+    }, 300)
   }
 
   startPid() {
@@ -100,7 +112,7 @@ class Motor {
         this.stop()
       }
 
-    }, 100)
+    }, 50)
   }
 
 /*
@@ -146,6 +158,8 @@ class Motor {
         entries: []
       }
 
+      this.target = 0
+      this.startRampUp(20)
       this.startPid()
 
     //  this.l298n.setSpeed(this.motor.LEFT, velocity)
@@ -162,6 +176,7 @@ class Motor {
     stop = () => {
       this.isMoving = false
       clearInterval(this.pidIntervalId);
+      clearInterval(this.rampUpIntervalId);
 //      console.log(formatStats(this.stats))
       this.callbacks.forEach(c => c(this.stats))
       console.log('motoro stopped')
