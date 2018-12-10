@@ -1,7 +1,7 @@
-import React from 'react'
+import React, { StatelessComponent } from 'react'
 import './CameraView.css'
 
-const CameraView = () =>
+const CameraView: StatelessComponent = () =>
     <div className="camera-view">
         <img
             alt={'Rover camera view'}

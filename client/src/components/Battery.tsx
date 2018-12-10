@@ -1,6 +1,6 @@
 import React, { StatelessComponent } from 'react'
 
-type BatteryStats = {
+export type BatteryStats = {
     voltage: number,
     currentMa: number,
 }

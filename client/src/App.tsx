@@ -1,25 +1,59 @@
 import React, { Component } from 'react'
 import './App.css'
 
-import Battery from './components/Battery'
+import Battery, { BatteryStats } from './components/Battery'
 import Navigation from './components/Navigation'
 import CameraView from './components/CameraView'
 import Rover from './components/Rover'
 
 import Control from './service/Control'
 
-class App extends Component {
+type State = {
+  battery?: BatteryStats,
+  temp?: {
+    battery: number,
+    room: number,
+  },
+  speed: string,
+  cameraAngle: number,
+  wsConnected: boolean,
+  wsError: boolean,
+  leftTicks: number,
+  rightTicks: number,
+  p: string,
+  i: string,
+  d: string,
+  ticksToGo: string,  
+}
+
+type ArduinoEvent = {
+  power: {
+    load_voltage: number, 
+    current_ma: number,   
+  }
+} | {
+  temp: {
+    room: number, 
+    battery: number,    
+  }
+}
+
+type Message = {
+  arduino: {
+    event: ArduinoEvent
+  }  
+}
+
+class App extends Component<{}, State> {
   state = {
-      battery: null,
-      temp: null,
-      motorStats: null,
+      battery: undefined,
+      temp: undefined,
       speed: '10',
       cameraAngle: 50,
       wsConnected: false,
       wsError: false,
       leftTicks: 0,
       rightTicks: 0,
-      ir: null,
       p: '0',
       i: '0',
       d: '0',
@@ -28,7 +62,7 @@ class App extends Component {
 
   control = null
 
-  onEncoder(value) {
+  onEncoder(value: string) {
       if (value === 'LEFT') {
           this.setState({leftTicks: this.state.leftTicks + 1})
       } else {
@@ -36,17 +70,7 @@ class App extends Component {
       }
   }
 
-  onIrSensor(value) {
-      this.setState({ ir: value })
-  }
-
-  onMotorStats(value) {
-    this.setState({ motorStats: value })
-//    console.log(value)
-//    console.log(JSON.stringify(value))
-  }
-
-  processMessage(msg) {
+  processMessage(msg: Message) {
     if (msg.hasOwnProperty('arduino')) {
       if (msg.arduino.event.hasOwnProperty('power')) {
         console.log(msg.arduino.event.power)
@@ -65,7 +89,7 @@ class App extends Component {
         })
       }
     }
-
+    /*
       switch(msg.type) {
           case 'ENCODER':
             this.onEncoder(msg.value)
@@ -93,6 +117,7 @@ class App extends Component {
           default:
        //     console.log('Unknown server message', msg)
       }
+      */
   }
 
   componentDidMount() {
