@@ -5,7 +5,6 @@ import Battery from './components/Battery'
 import Navigation from './components/Navigation'
 import CameraView from './components/CameraView'
 import Rover from './components/Rover'
-import MotorStats from './components/MotorStats'
 
 import Control from './service/Control'
 

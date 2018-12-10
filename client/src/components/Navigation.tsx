@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { StatelessComponent } from 'react'
 import './Navigation.css'
 
 const LEFT = 'LEFT'
@@ -6,7 +6,7 @@ const RIGHT = 'RIGHT'
 const BOTTOM = 'BOTTOM'
 const TOP = 'TOP'
 
-const findQuadrant = (x, y, width, height) => {
+const findQuadrant = (x: number, y: number, width: number, height: number) => {
     if (y < (height/2)) {
 
         // top left
@@ -30,12 +30,12 @@ const findQuadrant = (x, y, width, height) => {
     }
 }
 
-const hypotenuse = (sideA, sideB) => Math.sqrt(Math.pow(sideA, 2) + Math.pow(sideB, 2))
+const hypotenuse = (sideA: number, sideB: number) => Math.sqrt(Math.pow(sideA, 2) + Math.pow(sideB, 2))
 
-const angle = (side, h) => Math.asin(side/h)
+const angle = (side: number, h: number) => Math.asin(side/h)
 
 // http://www.calculator.net/triangle-calculator.html
-const isSide = (x, y, halfWidth, halfHeight) => {
+const isSide = (x: number, y: number, halfWidth: number, halfHeight: number) => {
     const h = hypotenuse(halfHeight, halfWidth)
     const angleA = angle(halfHeight, h)
     const angleB = angle(halfWidth, h)
@@ -44,13 +44,17 @@ const isSide = (x, y, halfWidth, halfHeight) => {
     return x < sideB
 }
 
-const onStart = (e, onForward, onBack, onLeft, onRight) => {
+const onStart = (e: React.MouseEvent<HTMLDivElement>, onForward: () => void, onBack: () => void, onLeft: () => void, onRight: () => void) => {
+    if (e.target == null) {
+        return;
+    }
+    
     e.stopPropagation();
     e.preventDefault();
 
-    const boundingBox = e.target.getBoundingClientRect()
-    const x = e.clientX - boundingBox.x;
-    const y = e.clientY - boundingBox.y
+    const boundingBox = (e.target as Element).getBoundingClientRect()
+    const x = e.clientX - (boundingBox as DOMRect).x;
+    const y = e.clientY - (boundingBox as DOMRect).y
 
     switch(findQuadrant(x, y, boundingBox.width, boundingBox.height)) {
         case LEFT:
@@ -71,14 +75,20 @@ const onStart = (e, onForward, onBack, onLeft, onRight) => {
 
 }
 
+type Props = {
+    onForward: () => void,
+    onBack: () => void,
+    onLeft: () => void,
+    onRight: () => void,
+    onStop: () => void,
+}
 
-
-const Navigation = ({onForward, onBack, onLeft, onRight, onStop}) =>
+const Navigation: StatelessComponent<Props> = ({onForward, onBack, onLeft, onRight, onStop}) =>
     <div className="navigation-view"
         onMouseDown={e => onStart(e, onForward, onBack, onLeft, onRight)}
-        onTouchStart={e => onStart(e, onForward, onBack, onLeft, onRight)}
+//        onTouchStart={e => onStart(e, onForward, onBack, onLeft, onRight)}
         onMouseUp={onStop}
-        onTouchEnd={onStop}
+//        onTouchEnd={onStop}
     >
     </div>
 
