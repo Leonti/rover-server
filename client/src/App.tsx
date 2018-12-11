@@ -8,12 +8,14 @@ import Rover from './components/Rover'
 
 import Control from './service/Control'
 
+type Temp = {
+  battery: number,
+  room: number,
+}
+
 type State = {
   battery?: BatteryStats,
-  temp?: {
-    battery: number,
-    room: number,
-  },
+  temp: Temp | undefined,
   speed: string,
   cameraAngle: number,
   wsConnected: boolean,
@@ -24,24 +26,6 @@ type State = {
   i: string,
   d: string,
   ticksToGo: string,  
-}
-
-type ArduinoEvent = {
-  power: {
-    load_voltage: number, 
-    current_ma: number,   
-  }
-} | {
-  temp: {
-    room: number, 
-    battery: number,    
-  }
-}
-
-type Message = {
-  arduino: {
-    event: ArduinoEvent
-  }  
 }
 
 class App extends Component<{}, State> {
@@ -60,7 +44,7 @@ class App extends Component<{}, State> {
       ticksToGo: '2000',
   }
 
-  control = null
+  control?: Control = undefined
 
   onEncoder(value: string) {
       if (value === 'LEFT') {
@@ -70,7 +54,7 @@ class App extends Component<{}, State> {
       }
   }
 
-  processMessage(msg: Message) {
+  processMessage(msg: any) {
     if (msg.hasOwnProperty('arduino')) {
       if (msg.arduino.event.hasOwnProperty('power')) {
         console.log(msg.arduino.event.power)
@@ -138,34 +122,38 @@ class App extends Component<{}, State> {
     }     
   }
 
-  onSpeedChange(event) {
+  onSpeedChange(event: React.ChangeEvent<HTMLInputElement>) {
       this.setState({speed: event.target.value})
   }
 
-  onPChange(event) {
+  onPChange(event: React.ChangeEvent<HTMLInputElement>) {
       this.setState({p: event.target.value})
   }
 
-  onIChange(event) {
+  onIChange(event: React.ChangeEvent<HTMLInputElement>) {
       this.setState({i: event.target.value})
   }
 
-  onDChange(event) {
+  onDChange(event: React.ChangeEvent<HTMLInputElement>) {
       this.setState({d: event.target.value})
   }
 
-  onTicksToGoChange(event) {
+  onTicksToGoChange(event: React.ChangeEvent<HTMLInputElement>) {
     this.setState({ticksToGo: event.target.value})
   }
 
-  onAngleChange(event) {
-    const angle = event.target.value
+  onAngleChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const angle = parseInt(event.target.value)
     this.setState({cameraAngle: angle})
-    this.control.setCameraAngle(100 - angle)
+    if (this.control) {
+      this.control.setCameraAngle(100 - angle)
+    }
   }
 
   onOff() {
-    this.control.off()
+    if (this.control) {
+      this.control.off()
+    }
   }
 
   getPid() {
@@ -183,7 +171,7 @@ class App extends Component<{}, State> {
             battery={this.state.battery}
             batteryTemp={this.state.temp ? this.state.temp.battery : null}
         /> : null
-    const navigationView = this.state.wsConnected ?
+    const navigationView = this.state.wsConnected && this.control ?
         <Navigation
             onForward={() => this.control.forward(parseInt(this.state.speed), this.getPid(), parseInt(this.state.ticksToGo))}
             onBack={() => this.control.back(parseInt(this.state.speed), this.getPid(), parseInt(this.state.ticksToGo))}
@@ -200,12 +188,6 @@ class App extends Component<{}, State> {
           {navigationView}
         </div>
         {batteryView}
-        <Rover
-          rear={!this.state.ir ? false : this.state.ir.rear}
-          left={!this.state.ir ? false : this.state.ir.left}
-          front={!this.state.ir ? false : this.state.ir.front}
-          right={!this.state.ir ? false : this.state.ir.right}
-        />
         <div className="slider-wrapper">
           <input type="range" min="0" max="100" value={this.state.cameraAngle} onChange={this.onAngleChange.bind(this)} step="1" />
         </div>
@@ -216,12 +198,21 @@ class App extends Component<{}, State> {
         <div>Ticks to go: <input type="text" value={this.state.ticksToGo} onChange={this.onTicksToGoChange.bind(this)} /></div>
         <div>Left: {this.state.leftTicks}</div>
         <div>Right: {this.state.rightTicks}</div>
-        <div>Room temperature: {this.state.temp ? this.state.temp.room : null}</div>
+        <div>Room temperature: {this.state.temp ? this.state.temp!.room : null}</div>
         <button onClick={this.onOff.bind(this)}>OFF</button>
       </div>
     );
   }
 }
+
+/* 
+        <Rover
+          rear={!this.state.ir ? false : this.state.ir.rear}
+          left={!this.state.ir ? false : this.state.ir.left}
+          front={!this.state.ir ? false : this.state.ir.front}
+          right={!this.state.ir ? false : this.state.ir.right}
+        />
+*/
 
 //         <MotorStats {...this.state.motorStats} />
 export default App;
