@@ -33,16 +33,16 @@ class App extends Component<{}, State> {
   constructor(props: any){
     super(props)
     this.state = {
-      speed: '10',
+      speed: localStorage.getItem('speed') !== null ? localStorage.getItem('speed')! : '10',
       cameraAngle: 50,
       wsConnected: false,
       wsError: false,
       leftTicks: 0,
       rightTicks: 0,
-      p: '0',
-      i: '0',
-      d: '0',
-      ticksToGo: '2000',
+      p: localStorage.getItem('p') !== null ? localStorage.getItem('p')! : '0',
+      i: localStorage.getItem('i') !== null ? localStorage.getItem('i')! : '0',
+      d: localStorage.getItem('d') !== null ? localStorage.getItem('d')! : '0',
+      ticksToGo: localStorage.getItem('ticksToGo') !== null ? localStorage.getItem('ticksToGo')! : '2000',
     }
   }
 
@@ -73,6 +73,13 @@ class App extends Component<{}, State> {
             room: msg.arduino.event.temp.room,
           }
         })
+      }
+    } else if (msg.hasOwnProperty('encoder')) {
+      console.log(msg.encoder.event.wheel)
+      if (msg.encoder.event.wheel === 'left') {
+        this.setState({leftTicks: this.state.leftTicks + 1})
+      } else {
+        this.setState({rightTicks: this.state.rightTicks + 1})
       }
     }
     /*
@@ -126,22 +133,27 @@ class App extends Component<{}, State> {
 
   onSpeedChange(event: React.ChangeEvent<HTMLInputElement>) {
       this.setState({speed: event.target.value})
+      localStorage.setItem('speed', event.target.value)
   }
 
   onPChange(event: React.ChangeEvent<HTMLInputElement>) {
       this.setState({p: event.target.value})
+      localStorage.setItem('p', event.target.value)
   }
 
   onIChange(event: React.ChangeEvent<HTMLInputElement>) {
       this.setState({i: event.target.value})
+      localStorage.setItem('i', event.target.value)
   }
 
   onDChange(event: React.ChangeEvent<HTMLInputElement>) {
       this.setState({d: event.target.value})
+      localStorage.setItem('d', event.target.value)
   }
 
   onTicksToGoChange(event: React.ChangeEvent<HTMLInputElement>) {
     this.setState({ticksToGo: event.target.value})
+    localStorage.setItem('ticksToGo', event.target.value)
   }
 
   onAngleChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -155,6 +167,18 @@ class App extends Component<{}, State> {
   onOff() {
     if (this.control) {
       this.control.off()
+    }
+  }
+
+  onGo() {
+    console.log('going')
+    if (this.control) {
+      this.setState({
+        leftTicks: 0,
+        rightTicks: 0,
+      })
+
+      this.control.forward(parseInt(this.state.speed), this.getPid(), parseInt(this.state.ticksToGo))
     }
   }
 
@@ -201,8 +225,10 @@ class App extends Component<{}, State> {
         <div>I: <input type="text" value={this.state.i} onChange={this.onIChange.bind(this)} /></div>
         <div>D: <input type="text" value={this.state.d} onChange={this.onDChange.bind(this)} /></div>
         <div>Ticks to go: <input type="text" value={this.state.ticksToGo} onChange={this.onTicksToGoChange.bind(this)} /></div>
+        <button onClick={this.onGo.bind(this)}>GO!</button>
         <div>Left: {this.state.leftTicks}</div>
         <div>Right: {this.state.rightTicks}</div>
+        <div>Diff: {this.state.rightTicks - this.state.leftTicks}</div>
         <div>Room temperature: {this.state.temp ? this.state.temp!.room : null}</div>
         <button onClick={this.onOff.bind(this)}>OFF</button>
       </div>
