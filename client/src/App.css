@@ -36,3 +36,8 @@
   transform-origin: 75px 75px;
   transform: rotate(-90deg);
 }
+
+.speed-wrapper input {
+  width: 400px;
+  border: solid;
+}

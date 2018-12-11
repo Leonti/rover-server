@@ -15,7 +15,7 @@ type Temp = {
 
 type State = {
   battery?: BatteryStats,
-  temp: Temp | undefined,
+  temp?: Temp,
   speed: string,
   cameraAngle: number,
   wsConnected: boolean,
@@ -29,9 +29,10 @@ type State = {
 }
 
 class App extends Component<{}, State> {
-  state = {
-      battery: undefined,
-      temp: undefined,
+
+  constructor(props: any){
+    super(props)
+    this.state = {
       speed: '10',
       cameraAngle: 50,
       wsConnected: false,
@@ -42,6 +43,7 @@ class App extends Component<{}, State> {
       i: '0',
       d: '0',
       ticksToGo: '2000',
+    }
   }
 
   control?: Control = undefined
@@ -166,17 +168,17 @@ class App extends Component<{}, State> {
 
   render() {
 
-    const batteryView = this.state.battery != null ?
+    const batteryView = this.state.battery !== undefined && this.state.temp ?
         <Battery
             battery={this.state.battery}
-            batteryTemp={this.state.temp ? this.state.temp.battery : null}
+            batteryTemp={this.state.temp.battery}
         /> : null
     const navigationView = this.state.wsConnected && this.control ?
         <Navigation
-            onForward={() => this.control.forward(parseInt(this.state.speed), this.getPid(), parseInt(this.state.ticksToGo))}
-            onBack={() => this.control.back(parseInt(this.state.speed), this.getPid(), parseInt(this.state.ticksToGo))}
-            onLeft={() => this.control.left(parseInt(this.state.speed), this.getPid())}
-            onRight={() => this.control.right(parseInt(this.state.speed), this.getPid())}
+            onForward={() => this.control!.forward(parseInt(this.state.speed), this.getPid(), parseInt(this.state.ticksToGo))}
+            onBack={() => this.control!.back(parseInt(this.state.speed), this.getPid(), parseInt(this.state.ticksToGo))}
+            onLeft={() => this.control!.left(parseInt(this.state.speed), this.getPid(), parseInt(this.state.ticksToGo))}
+            onRight={() => this.control!.right(parseInt(this.state.speed), this.getPid(), parseInt(this.state.ticksToGo))}
             onStop={() => 1}
         /> : <div className="connecting">Connecting to rover</div>
 
@@ -191,7 +193,10 @@ class App extends Component<{}, State> {
         <div className="slider-wrapper">
           <input type="range" min="0" max="100" value={this.state.cameraAngle} onChange={this.onAngleChange.bind(this)} step="1" />
         </div>
-        <div>Speed: <input type="range" min="0" max="100" value={this.state.speed} onChange={this.onSpeedChange.bind(this)} /></div>
+        <div className="speed-wrapper">
+          <input type="range" min="0" max="100" value={this.state.speed} onChange={this.onSpeedChange.bind(this)} />
+          {this.state.speed}
+          </div>
         <div>P: <input type="text" value={this.state.p} onChange={this.onPChange.bind(this)} /></div>
         <div>I: <input type="text" value={this.state.i} onChange={this.onIChange.bind(this)} /></div>
         <div>D: <input type="text" value={this.state.d} onChange={this.onDChange.bind(this)} /></div>
