@@ -10,6 +10,7 @@ const move = (speed: number, pid: Pid, ticksToGo: number, direction: string) => 
             command: {
                 move: {
                     speed,
+                    direction,
                     ticks: ticksToGo,
                     p: pid.p,
                     i: pid.i,
@@ -37,6 +38,7 @@ class Control {
         this.ws = ws
     }
 
+    go = (speed: number, pid: Pid, ticksToGo: number, direction: string) => this.ws.send(JSON.stringify(move(speed, pid, ticksToGo, direction)))
     forward = (speed: number, pid: Pid, ticksToGo: number) => this.ws.send(JSON.stringify(move(speed, pid, ticksToGo, 'FORWARD')))
     back = (speed: number, pid: Pid, ticksToGo: number) => this.ws.send(JSON.stringify(move(speed, pid, ticksToGo, 'BACKWARD')))
     left = (speed: number, pid: Pid, ticksToGo: number) => this.ws.send(JSON.stringify(move(speed, pid, ticksToGo, 'LEFT')))

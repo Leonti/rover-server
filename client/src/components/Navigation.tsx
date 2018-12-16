@@ -1,4 +1,4 @@
-import React, { StatelessComponent } from 'react'
+import React, { FunctionComponent, memo } from 'react'
 import './Navigation.css'
 
 const LEFT = 'LEFT'
@@ -83,7 +83,7 @@ type Props = {
     onStop: () => void,
 }
 
-const Navigation: StatelessComponent<Props> = ({onForward, onBack, onLeft, onRight, onStop}) =>
+const Navigation: FunctionComponent<Props> = ({onForward, onBack, onLeft, onRight, onStop}) =>
     <div className="navigation-view"
         onMouseDown={e => onStart(e, onForward, onBack, onLeft, onRight)}
 //        onTouchStart={e => onStart(e, onForward, onBack, onLeft, onRight)}
@@ -92,4 +92,4 @@ const Navigation: StatelessComponent<Props> = ({onForward, onBack, onLeft, onRig
     >
     </div>
 
-export default Navigation
+export default memo(Navigation)

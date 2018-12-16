@@ -1,4 +1,4 @@
-import React, { StatelessComponent } from 'react'
+import React, { FunctionComponent, memo } from 'react'
 
 const sc = (value: boolean) => value ? '#f44256' : '#008000'
 
@@ -19,7 +19,7 @@ type Props = {
 	right: Bumper,
 }
 
-const Rover: StatelessComponent<Props> = ({rear, left, front, right}) =>
+const Rover: FunctionComponent<Props> = ({rear, left, front, right}) =>
   <div style={{width: '150px'}}>
     <svg version="1.1" viewBox="0 0 744.09448819 1052.3622047">
     	<defs id="defs4"/>
@@ -39,4 +39,4 @@ const Rover: StatelessComponent<Props> = ({rear, left, front, right}) =>
     </svg>
   </div>
 
-export default Rover
+export default memo(Rover)

@@ -1,10 +1,9 @@
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 import './App.css'
 
 import Battery, { BatteryStats } from './components/Battery'
 import Navigation from './components/Navigation'
 import CameraView from './components/CameraView'
-import Rover from './components/Rover'
 
 import Control from './service/Control'
 
@@ -28,7 +27,7 @@ type State = {
   ticksToGo: string,  
 }
 
-class App extends Component<{}, State> {
+class App extends PureComponent<{}, State> {
 
   constructor(props: any){
     super(props)
@@ -59,7 +58,6 @@ class App extends Component<{}, State> {
   processMessage(msg: any) {
     if (msg.hasOwnProperty('arduino')) {
       if (msg.arduino.event.hasOwnProperty('power')) {
-        console.log(msg.arduino.event.power)
         this.setState({ 
           battery: {
             voltage: msg.arduino.event.power.load_voltage,
@@ -75,7 +73,6 @@ class App extends Component<{}, State> {
         })
       }
     } else if (msg.hasOwnProperty('encoder')) {
-      console.log(msg.encoder.event.wheel)
       if (msg.encoder.event.wheel === 'left') {
         this.setState({leftTicks: this.state.leftTicks + 1})
       } else {
@@ -170,15 +167,15 @@ class App extends Component<{}, State> {
     }
   }
 
-  onGo() {
-    console.log('going')
+  onGo(direction: string) {
+    console.log('going ' + direction)
     if (this.control) {
       this.setState({
         leftTicks: 0,
         rightTicks: 0,
       })
 
-      this.control.forward(parseInt(this.state.speed), this.getPid(), parseInt(this.state.ticksToGo))
+      this.control.go(parseInt(this.state.speed), this.getPid(), parseInt(this.state.ticksToGo), direction)
     }
   }
 
@@ -191,7 +188,7 @@ class App extends Component<{}, State> {
   }
 
   render() {
-
+//    console.log('render')
     const batteryView = this.state.battery !== undefined && this.state.temp ?
         <Battery
             battery={this.state.battery}
@@ -225,7 +222,10 @@ class App extends Component<{}, State> {
         <div>I: <input type="text" value={this.state.i} onChange={this.onIChange.bind(this)} /></div>
         <div>D: <input type="text" value={this.state.d} onChange={this.onDChange.bind(this)} /></div>
         <div>Ticks to go: <input type="text" value={this.state.ticksToGo} onChange={this.onTicksToGoChange.bind(this)} /></div>
-        <button onClick={this.onGo.bind(this)}>GO!</button>
+        <button onClick={this.onGo.bind(this, 'forward')}>FW</button>
+        <button onClick={this.onGo.bind(this, 'backward')}>BW</button>
+        <button onClick={this.onGo.bind(this, 'left')}>LEFT</button>
+        <button onClick={this.onGo.bind(this, 'right')}>RIGHT</button>
         <div>Left: {this.state.leftTicks}</div>
         <div>Right: {this.state.rightTicks}</div>
         <div>Diff: {this.state.rightTicks - this.state.leftTicks}</div>

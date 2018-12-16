@@ -1,4 +1,4 @@
-import React, { StatelessComponent } from 'react'
+import React, { FunctionComponent, memo } from 'react'
 
 export type BatteryStats = {
     voltage: number,
@@ -10,11 +10,11 @@ export type Props = {
     batteryTemp: number
 }
 
-const Battery: StatelessComponent<Props> = ({battery, batteryTemp}) =>
+const Battery: FunctionComponent<Props> = ({battery, batteryTemp}) =>
     <div>
         <div>{battery.voltage}V</div>
         <div>{battery.currentMa}mA</div>
         <div>{batteryTemp}C</div>
     </div>
 
-export default Battery
+export default memo(Battery)
