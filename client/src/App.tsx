@@ -3,6 +3,7 @@ import './App.css'
 
 import Battery, { BatteryStats } from './components/Battery'
 import Navigation from './components/Navigation'
+import { MotorStats, Stat, Stats } from './components/MotorStats'
 import CameraView from './components/CameraView'
 
 import Control from './service/Control'
@@ -24,7 +25,30 @@ type State = {
   p: string,
   i: string,
   d: string,
-  ticksToGo: string,  
+  ticksToGo: string,
+  motorStats?: Stats
+}
+
+const toStat = (wsStat: any): Stat => {
+  return {
+    speedBase: wsStat.speed_base,
+    speedSlave: wsStat.speed_slave,
+    ticksBase: wsStat.ticks_base,
+    ticksSlave: wsStat.ticks_slave,
+    error: wsStat.error,
+    pTerm: wsStat.p_term,
+    iTerm: wsStat.i_term,
+    dTerm: wsStat.d_term,
+  }
+}
+
+const toStats = (wsStats: any): Stats => {
+  return {
+    p: wsStats.p,
+    i: wsStats.i,
+    d: wsStats.d,
+    stats: wsStats.stats.map(toStat)
+  }
 }
 
 class App extends PureComponent<{}, State> {
@@ -41,7 +65,7 @@ class App extends PureComponent<{}, State> {
       p: localStorage.getItem('p') !== null ? localStorage.getItem('p')! : '0',
       i: localStorage.getItem('i') !== null ? localStorage.getItem('i')! : '0',
       d: localStorage.getItem('d') !== null ? localStorage.getItem('d')! : '0',
-      ticksToGo: localStorage.getItem('ticksToGo') !== null ? localStorage.getItem('ticksToGo')! : '2000',
+      ticksToGo: localStorage.getItem('ticksToGo') !== null ? localStorage.getItem('ticksToGo')! : '2000'
     }
   }
 
@@ -73,11 +97,21 @@ class App extends PureComponent<{}, State> {
         })
       }
     } else if (msg.hasOwnProperty('encoder')) {
+      /*
       if (msg.encoder.event.wheel === 'left') {
         this.setState({leftTicks: this.state.leftTicks + 1})
       } else {
         this.setState({rightTicks: this.state.rightTicks + 1})
       }
+      */
+    } else if (msg.hasOwnProperty('generic')) {
+
+    } else if (msg.hasOwnProperty('motorrunstats')) {
+      this.setState({
+        motorStats: toStats(msg.motorrunstats)
+      })
+    } else {
+      console.log(msg)
     }
     /*
       switch(msg.type) {
@@ -112,7 +146,7 @@ class App extends PureComponent<{}, State> {
 
   componentDidMount() {
 //    let server = new WebSocket(`ws://${window.location.host}/ws`)
-    let server = new WebSocket(`ws://192.168.0.109:5001`)
+    let server = new WebSocket(`ws://192.168.0.110:5001`)
     server.onopen = () => {
         this.setState({wsConnected: true})
         this.control = new Control(server)
@@ -203,6 +237,10 @@ class App extends PureComponent<{}, State> {
             onStop={() => 1}
         /> : <div className="connecting">Connecting to rover</div>
 
+
+    const statsView = this.state.motorStats !== undefined ?
+      <MotorStats stats={this.state.motorStats} /> : null
+
     return (
       <div className="App">
         <h1>Rover</h1>
@@ -231,6 +269,7 @@ class App extends PureComponent<{}, State> {
         <div>Diff: {this.state.rightTicks - this.state.leftTicks}</div>
         <div>Room temperature: {this.state.temp ? this.state.temp!.room : null}</div>
         <button onClick={this.onOff.bind(this)}>OFF</button>
+        {statsView}
       </div>
     );
   }
